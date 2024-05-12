@@ -49,7 +49,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import entity.courseData;
-import database.database;
+import database.Database;
 import entity.getData;
 import entity.studentData;
 
@@ -262,6 +262,24 @@ public class DashboardController implements Initializable {
     @FXML
     private TextField studentGrade_search;
 
+    @FXML
+    private Button teacher_btn;
+
+    @FXML
+    private AnchorPane teacher_form;
+
+    @FXML
+    private Button Class_btn;
+
+    @FXML
+    private AnchorPane Class_form;
+
+    @FXML
+    private Button Sro_btn;
+
+    @FXML
+    private AnchorPane Sro_form;
+
     private Connection connect;
     private PreparedStatement prepare;
     private Statement statement;
@@ -273,7 +291,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT COUNT(id) FROM student";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         int countEnrolled = 0;
 
@@ -297,7 +315,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT COUNT(id) FROM student WHERE gender = 'Female' and status = 'Enrolled'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             int countFemale = 0;
@@ -321,7 +339,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT COUNT(id) FROM student WHERE gender = 'Male' and status = 'Enrolled'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             int countMale = 0;
@@ -344,9 +362,9 @@ public class DashboardController implements Initializable {
 
         home_totalEnrolledChart.getData().clear();
 
-        String sql = "SELECT date, COUNT(id) FROM student WHERE status = 'Enrolled' GROUP BY date ORDER BY TIMESTAMP(date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             XYChart.Series chart = new XYChart.Series();
@@ -370,9 +388,9 @@ public class DashboardController implements Initializable {
 
         home_totalFemaleChart.getData().clear();
 
-        String sql = "SELECT date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Female' GROUP BY date ORDER BY TIMESTAMP(date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Female' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             XYChart.Series chart = new XYChart.Series();
@@ -396,9 +414,9 @@ public class DashboardController implements Initializable {
 
         home_totalMaleChart.getData().clear();
 
-        String sql = "SELECT date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Male' GROUP BY date ORDER BY TIMESTAMP(date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Male' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             XYChart.Series chart = new XYChart.Series();
@@ -422,10 +440,10 @@ public class DashboardController implements Initializable {
     public void addStudentsAdd() throws SQLException {
 
         String insertData = "INSERT INTO student"
-                + "(studentNum,year,course,firstName,lastName,gender,birth,status,image,date) "
+                + "(studentNum,year,course,firstName,lastName,gender,birth,status,image,create_date) "
                 + "VALUES(?,?,?,?,?,?,?,?,?,?)";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -459,7 +477,7 @@ public class DashboardController implements Initializable {
                     alert.setContentText("Student #" + addStudents_studentNum.getText() + " was already exist!");
                     alert.showAndWait();
                 } else {
-                    prepare = connect.prepareStatement(insertData);
+                    prepare = connect.prepareStatement(insertData, Statement.RETURN_GENERATED_KEYS);
                     prepare.setString(1, addStudents_studentNum.getText());
                     prepare.setString(2, (String) addStudents_year.getSelectionModel().getSelectedItem());
                     prepare.setString(3, (String) addStudents_course.getSelectionModel().getSelectedItem());
@@ -478,20 +496,29 @@ public class DashboardController implements Initializable {
                     prepare.setString(10, String.valueOf(sqlDate));
 
                     prepare.executeUpdate();
+                    //Add id in table
+                    ResultSet generatedKeys = prepare.getGeneratedKeys();
+                    int studentId = -1;
+                    if (generatedKeys.next()) {
+                        studentId = generatedKeys.getInt(1);
+                    } else {
+                        // Handle error
+                        System.out.println("Error No ID Student!");
+                        return;
+                    }
 
-                    String insertStudentGrade = "INSERT INTO student_grade "
-                            + "(studentNum,year,course,first_sem,second_sem,final) "
-                            + "VALUES(?,?,?,?,?,?)";
-
-                    prepare = connect.prepareStatement(insertStudentGrade);
-                    prepare.setString(1, addStudents_studentNum.getText());
-                    prepare.setString(2, (String) addStudents_year.getSelectionModel().getSelectedItem());
-                    prepare.setString(3, (String) addStudents_course.getSelectionModel().getSelectedItem());
-                    prepare.setString(4, "0");
-                    prepare.setString(5, "0");
-                    prepare.setString(6, "0");
-
-                    prepare.executeUpdate();
+                    String insertStudentGrade = "INSERT INTO student_grade (student_id, studentNum, year, course, first_sem, second_sem, final) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement insertGradeStatement = connect.prepareStatement(insertStudentGrade);
+                    insertGradeStatement.setInt(1, studentId);
+                    insertGradeStatement.setString(2, addStudents_studentNum.getText());
+                    insertGradeStatement.setString(3, addStudents_year.getValue().toString());
+                    insertGradeStatement.setString(4, addStudents_course.getValue().toString());
+                    insertGradeStatement.setDouble(5, 0.0);
+                    insertGradeStatement.setDouble(6, 0.0);
+                    insertGradeStatement.setDouble(7, 0.0);
+                    insertGradeStatement.executeUpdate();
+                    insertGradeStatement.close();
 
                     alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Information Message");
@@ -528,7 +555,7 @@ public class DashboardController implements Initializable {
                 + "', image = '" + uri + "' WHERE studentNum = '"
                 + addStudents_studentNum.getText() + "'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -581,76 +608,58 @@ public class DashboardController implements Initializable {
     @FXML
     public void addStudentsDelete() throws SQLException {
 
-        String deleteData = "DELETE FROM student WHERE studentNum = '"
-                + addStudents_studentNum.getText() + "'";
+        String studentNum = addStudents_studentNum.getText();
 
-        connect = database.connectDb();
-
-        try {
-            Alert alert;
-            if (addStudents_studentNum.getText().isEmpty()
-                    || addStudents_year.getSelectionModel().getSelectedItem() == null
-                    || addStudents_course.getSelectionModel().getSelectedItem() == null
-                    || addStudents_firstName.getText().isEmpty()
-                    || addStudents_lastName.getText().isEmpty()
-                    || addStudents_gender.getSelectionModel().getSelectedItem() == null
-                    || addStudents_birth.getValue() == null
-                    || addStudents_status.getSelectionModel().getSelectedItem() == null
-                    || getData.path == null || getData.path == "") {
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
-            } else {
-                alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure you want to DELETE Student #" + addStudents_studentNum.getText() + "?");
-
-                Optional<ButtonType> option = alert.showAndWait();
-
-                if (option.get().equals(ButtonType.OK)) {
-
-                    statement = connect.createStatement();
-                    statement.executeUpdate(deleteData);
-
-                    String checkData = "SELECT studentNum FROM student_grade "
-                            + "WHERE studentNum = '" + addStudents_studentNum.getText() + "'";
-
-                    prepare = connect.prepareStatement(checkData);
-                    result = prepare.executeQuery();
-
-                    // IF THE STUDENT NUMBER IS EXIST THEN PROCEED TO DELETE
-                    if (result.next()) {
-                        String deleteGrade = "DELETE FROM student_grade WHERE "
-                                + "studentNum = '" + addStudents_studentNum.getText() + "'";
-
-                        statement = connect.createStatement();
-                        statement.executeUpdate(deleteGrade);
-
-                    }// IF NOT THEN NVM
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Deleted!");
-                    alert.showAndWait();
-
-                    // TO UPDATE THE TABLEVIEW
-                    addStudentsShowListData();
-                    // TO CLEAR THE FIELDS
-                    addStudentsClear();
-
-                } else {
-                    return;
-                }
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Check if the student number is provided
+        if (studentNum.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Please provide the student number.");
+            alert.showAndWait();
+            return;
         }
 
+        // Confirmation dialog
+        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation Message");
+        confirmationAlert.setHeaderText(null);
+        confirmationAlert.setContentText("Are you sure you want to DELETE Student #" + studentNum + "?");
+
+        Optional<ButtonType> option = confirmationAlert.showAndWait();
+
+        // Check user's choice
+        if (option.isPresent() && option.get() == ButtonType.OK) {
+            try {
+                // Delete corresponding records in student_grade table first
+                String deleteGrade = "DELETE FROM student_grade WHERE studentNum = ?";
+                PreparedStatement deleteGradeStatement = connect.prepareStatement(deleteGrade);
+                deleteGradeStatement.setString(1, studentNum);
+                deleteGradeStatement.executeUpdate();
+
+                // Then delete the student record
+                String deleteData = "DELETE FROM student WHERE studentNum = ?";
+                PreparedStatement deleteStatement = connect.prepareStatement(deleteData);
+                deleteStatement.setString(1, studentNum);
+                deleteStatement.executeUpdate();
+
+                // Success message
+                Alert successAlert = new Alert(AlertType.INFORMATION);
+                successAlert.setTitle("Information Message");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Successfully Deleted!");
+                successAlert.showAndWait();
+
+                // Update the table view
+                addStudentsShowListData();
+
+                // Clear the fields
+                addStudentsClear();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
@@ -752,7 +761,7 @@ public class DashboardController implements Initializable {
 
         String listCourse = "SELECT * FROM course";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
 
@@ -808,7 +817,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT * FROM student";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             studentData studentD;
@@ -882,7 +891,7 @@ public class DashboardController implements Initializable {
 
         String insertData = "INSERT INTO course (course,description,degree) VALUES(?,?,?)";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -943,7 +952,7 @@ public class DashboardController implements Initializable {
                 + availableCourse_degree.getText() + "' WHERE course = '"
                 + availableCourse_course.getText() + "'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -997,7 +1006,7 @@ public class DashboardController implements Initializable {
         String deleteData = "DELETE FROM course WHERE course = '"
                 + availableCourse_course.getText() + "'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -1057,7 +1066,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT * FROM course";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             courseData courseD;
@@ -1114,7 +1123,7 @@ public class DashboardController implements Initializable {
         String checkData = "SELECT * FROM student_grade WHERE studentNum = '"
                 + studentGrade_studentNum.getText() + "'";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         double finalResult = 0;
 
@@ -1199,7 +1208,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT * FROM student_grade";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try {
             studentData studentD;
@@ -1316,7 +1325,7 @@ public class DashboardController implements Initializable {
                 logout.getScene().getWindow().hide();
 
                 //LINK YOUR LOGIN FORM 
-                Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
 
@@ -1355,8 +1364,6 @@ public class DashboardController implements Initializable {
         username.setText(getData.username);
     }
 
-    // THATS IT FOR THESE VIDEOS, THANKS FOR WATCHING!! SUBSCRIBE AND TURN ON NOTIFICATION 
-//    TO NOTIF YOU FOR MORE UPCOMING VIDEOS THANKS FOR THE SUPPORT! : )
     public void defaultNav() {
         home_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
     }
@@ -1368,11 +1375,17 @@ public class DashboardController implements Initializable {
             addStudents_form.setVisible(false);
             availableCourse_form.setVisible(false);
             studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
 
             home_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
             availableCourse_btn.setStyle("-fx-background-color:transparent");
             studentGrade_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
 
             homeDisplayTotalEnrolledStudents();
             homeDisplayMaleEnrolled();
@@ -1386,12 +1399,17 @@ public class DashboardController implements Initializable {
             addStudents_form.setVisible(true);
             availableCourse_form.setVisible(false);
             studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
 
             addStudents_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             home_btn.setStyle("-fx-background-color:transparent");
             availableCourse_btn.setStyle("-fx-background-color:transparent");
             studentGrade_btn.setStyle("-fx-background-color:transparent");
-
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
 //            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
             addStudentsShowListData();
             addStudentsYearList();
@@ -1405,12 +1423,17 @@ public class DashboardController implements Initializable {
             addStudents_form.setVisible(false);
             availableCourse_form.setVisible(true);
             studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
 
             availableCourse_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
             home_btn.setStyle("-fx-background-color:transparent");
             studentGrade_btn.setStyle("-fx-background-color:transparent");
-
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
             availableCourseShowListData();
 
         } else if (event.getSource() == studentGrade_btn) {
@@ -1418,16 +1441,76 @@ public class DashboardController implements Initializable {
             addStudents_form.setVisible(false);
             availableCourse_form.setVisible(false);
             studentGrade_form.setVisible(true);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
 
             studentGrade_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
             availableCourse_btn.setStyle("-fx-background-color:transparent");
             home_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
 
             studentGradesShowListData();
             studentGradesSearch();
 
-        }
+        } else if (event.getSource() == teacher_btn) {
+            home_form.setVisible(false);
+            addStudents_form.setVisible(false);
+            availableCourse_form.setVisible(false);
+            studentGrade_form.setVisible(false);
+            teacher_form.setVisible(true);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
+
+            studentGrade_btn.setStyle("-fx-background-color:transparent);");
+            addStudents_btn.setStyle("-fx-background-color:transparent");
+            availableCourse_btn.setStyle("-fx-background-color:transparent");
+            home_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
+//            studentGradesShowListData();
+//            studentGradesSearch();
+        } else if (event.getSource() == Class_btn) {
+            home_form.setVisible(false);
+            addStudents_form.setVisible(false);
+            availableCourse_form.setVisible(false);
+            studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(true);
+            Sro_form.setVisible(false);
+
+            studentGrade_btn.setStyle("-fx-background-color:transparent);");
+            addStudents_btn.setStyle("-fx-background-color:transparent");
+            availableCourse_btn.setStyle("-fx-background-color:transparent");
+            home_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+//            studentGradesShowListData();
+//            studentGradesSearch();
+        } else if (event.getSource() == Sro_btn) {
+            home_form.setVisible(false);
+            addStudents_form.setVisible(false);
+            availableCourse_form.setVisible(false);
+            studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(true);
+
+            studentGrade_btn.setStyle("-fx-background-color:transparent);");
+            addStudents_btn.setStyle("-fx-background-color:transparent");
+            availableCourse_btn.setStyle("-fx-background-color:transparent");
+            home_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Class_btn.setStyle("-fx-background-color:transparent");
+//            studentGradesShowListData();
+//            studentGradesSearch();
+        } 
     }
 
     @FXML

@@ -22,7 +22,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import database.database;
+import database.Database;
 import entity.getData;
 
 public class LoginController implements Initializable {
@@ -56,7 +56,7 @@ public class LoginController implements Initializable {
 
         String sql = "SELECT * FROM tbl_admin WHERE username = ? and password = ?";
 
-        connect = database.connectDb();
+        connect = Database.connectDb();
 
         try { // IT WORKS GOOD : ) NOW LETS DESIGN THE DASHBOARD FORM : ) 
             Alert alert;
@@ -88,7 +88,7 @@ public class LoginController implements Initializable {
 //                    TO HIDE THE LOGIN FORM
                     loginBtn.getScene().getWindow().hide();
                     //LINK YOUR DASHBOARD 
-                    Parent root = FXMLLoader.load(getClass().getResource("/view/dashboard.fxml"));
+                    Parent root = FXMLLoader.load(getClass().getResource("/view/Dashboard.fxml"));
 
                     Stage stage = new Stage();
                     Scene scene = new Scene(root);
