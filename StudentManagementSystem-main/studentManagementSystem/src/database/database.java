@@ -9,7 +9,7 @@ public class database {
         
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connect = DriverManager.getConnection("jdbc:mysql://localhost/studentmanagement?useSSL=false", "root", "trong190724");
+            Connection connect = DriverManager.getConnection("jdbc:mysql://localhost/studentmanagement?useSSL=false", "root", "");
             return connect;
         }catch(Exception e){    
             e.printStackTrace();
