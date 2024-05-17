@@ -3,9 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/GetData.java</file>
             <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/controller/DashboardController.java</file>
             <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/studentmanagementsystem/StudentManagementSystem.java</file>
+            <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/CourseData.java</file>
             <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/view/Dashboard.fxml</file>
+            <file>file:/D:/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/SubjectData.java</file>
         </group>
     </open-files>
 </project-private>

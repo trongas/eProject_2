@@ -48,10 +48,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import entity.courseData;
+import entity.CourseData;
 import database.Database;
-import entity.getData;
-import entity.studentData;
+import entity.GetData;
+import entity.StudentData;
+import entity.SubjectData;
+import java.io.IOException;
+import javafx.util.StringConverter;
 
 public class DashboardController implements Initializable {
 
@@ -110,31 +113,31 @@ public class DashboardController implements Initializable {
     private TextField addStudents_search;
 
     @FXML
-    private TableView<studentData> addStudents_tableView;
+    private TableView<StudentData> addStudents_tableView;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_studentNum;
+    private TableColumn<StudentData, String> addStudents_col_studentNum;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_year;
+    private TableColumn<StudentData, String> addStudents_col_year;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_course;
+    private TableColumn<StudentData, String> addStudents_col_course;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_firstName;
+    private TableColumn<StudentData, String> addStudents_col_firstName;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_lastName;
+    private TableColumn<StudentData, String> addStudents_col_lastName;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_gender;
+    private TableColumn<StudentData, String> addStudents_col_gender;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_birth;
+    private TableColumn<StudentData, String> addStudents_col_birth;
 
     @FXML
-    private TableColumn<studentData, String> addStudents_col_status;
+    private TableColumn<StudentData, String> addStudents_col_status;
 
     @FXML
     private TextField addStudents_studentNum;
@@ -203,16 +206,16 @@ public class DashboardController implements Initializable {
     private Button availableCourse_deleteBtn;
 
     @FXML
-    private TableView<courseData> availableCourse_tableView;
+    private TableView<CourseData> availableCourse_tableView;
 
     @FXML
-    private TableColumn<courseData, String> availableCourse_col_course;
+    private TableColumn<CourseData, String> availableCourse_col_course;
 
     @FXML
-    private TableColumn<courseData, String> availableCourse_col_description;
+    private TableColumn<CourseData, String> availableCourse_col_description;
 
     @FXML
-    private TableColumn<courseData, String> availableCourse_col_degree;
+    private TableColumn<CourseData, String> availableCourse_col_degree;
 
     @FXML
     private AnchorPane studentGrade_form;
@@ -239,25 +242,25 @@ public class DashboardController implements Initializable {
     private Button studentGrade_clearBtn;
 
     @FXML
-    private TableView<studentData> studentGrade_tableView;
+    private TableView<StudentData> studentGrade_tableView;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_studentNum;
+    private TableColumn<StudentData, String> studentGrade_col_studentNum;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_year;
+    private TableColumn<StudentData, String> studentGrade_col_year;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_course;
+    private TableColumn<StudentData, String> studentGrade_col_course;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_firstSem;
+    private TableColumn<StudentData, String> studentGrade_col_firstSem;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_secondSem;
+    private TableColumn<StudentData, String> studentGrade_col_secondSem;
 
     @FXML
-    private TableColumn<studentData, String> studentGrade_col_final;
+    private TableColumn<StudentData, String> studentGrade_col_final;
 
     @FXML
     private TextField studentGrade_search;
@@ -280,6 +283,39 @@ public class DashboardController implements Initializable {
     @FXML
     private AnchorPane Sro_form;
 
+    @FXML
+    private Button Subject_btn;
+
+    @FXML
+    private AnchorPane Subject_form;
+
+    @FXML
+    private TextField txtSubjectId;
+    @FXML
+    private TextField txtSubjectName;
+    @FXML
+    private ComboBox<CourseData> comboCourse;
+
+    @FXML
+    private TableView<SubjectData> tableSubjects;
+    @FXML
+    private TableColumn<SubjectData, Integer> colSubjectId;
+    @FXML
+    private TableColumn<SubjectData, String> colSubjectName;
+    @FXML
+    private TableColumn<SubjectData, Integer> colCourseName;
+    @FXML
+    private Button Subject_addBtn;
+
+    @FXML
+    private Button Subject_clearBtn;
+
+    @FXML
+    private Button Subject_deleteBtn;
+
+    @FXML
+    private Button Subject_updateBtn;
+    //VAY THOI XONG ANH CODE TRONG DAY LA OKE
     private Connection connect;
     private PreparedStatement prepare;
     private Statement statement;
@@ -289,7 +325,7 @@ public class DashboardController implements Initializable {
 
     public void homeDisplayTotalEnrolledStudents() throws SQLException {
 
-        String sql = "SELECT COUNT(id) FROM student";
+        String sql = "SELECT COUNT(student_id) FROM student";
 
         connect = Database.connectDb();
 
@@ -300,7 +336,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                countEnrolled = result.getInt("COUNT(id)");
+                countEnrolled = result.getInt("COUNT(student_id)");
             }
 
             home_totalEnrolled.setText(String.valueOf(countEnrolled));
@@ -313,7 +349,7 @@ public class DashboardController implements Initializable {
 
     public void homeDisplayFemaleEnrolled() throws SQLException {
 
-        String sql = "SELECT COUNT(id) FROM student WHERE gender = 'Female' and status = 'Enrolled'";
+        String sql = "SELECT COUNT(student_id) FROM student WHERE gender = 'Female' and status = 'Enrolled'";
 
         connect = Database.connectDb();
 
@@ -324,7 +360,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                countFemale = result.getInt("COUNT(id)");
+                countFemale = result.getInt("COUNT(student_id)");
             }
 
             home_totalFemale.setText(String.valueOf(countFemale));
@@ -337,7 +373,7 @@ public class DashboardController implements Initializable {
 
     public void homeDisplayMaleEnrolled() throws SQLException {
 
-        String sql = "SELECT COUNT(id) FROM student WHERE gender = 'Male' and status = 'Enrolled'";
+        String sql = "SELECT COUNT(student_id) FROM student WHERE gender = 'Male' and status = 'Enrolled'";
 
         connect = Database.connectDb();
 
@@ -348,7 +384,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                countMale = result.getInt("COUNT(id)");
+                countMale = result.getInt("COUNT(student_id)");
             }
             home_totalMale.setText(String.valueOf(countMale));
 
@@ -362,7 +398,7 @@ public class DashboardController implements Initializable {
 
         home_totalEnrolledChart.getData().clear();
 
-        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(student_id) FROM student WHERE status = 'Enrolled' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
         connect = Database.connectDb();
 
@@ -388,7 +424,7 @@ public class DashboardController implements Initializable {
 
         home_totalFemaleChart.getData().clear();
 
-        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Female' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(student_id) FROM student WHERE status = 'Enrolled' and gender = 'Female' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
         connect = Database.connectDb();
 
@@ -414,7 +450,7 @@ public class DashboardController implements Initializable {
 
         home_totalMaleChart.getData().clear();
 
-        String sql = "SELECT create_date, COUNT(id) FROM student WHERE status = 'Enrolled' and gender = 'Male' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
+        String sql = "SELECT create_date, COUNT(student_id) FROM student WHERE status = 'Enrolled' and gender = 'Male' GROUP BY create_date ORDER BY TIMESTAMP(create_date) ASC LIMIT 5";
 
         connect = Database.connectDb();
 
@@ -438,16 +474,15 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void addStudentsAdd() throws SQLException {
+        String insertStudentData = "INSERT INTO student "
+                + "(studentNum, year, course_id, firstName, lastName, gender, birth, status, image, create_date) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        String insertData = "INSERT INTO student"
-                + "(studentNum,year,course,firstName,lastName,gender,birth,status,image,create_date) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?)";
-
+//        String insertStudentGrade = "INSERT INTO student_grades (student_id, subject_id, score, status) "
+//                + "VALUES (?, ?, ?, ?)";
         connect = Database.connectDb();
 
         try {
-            Alert alert;
-
             if (addStudents_studentNum.getText().isEmpty()
                     || addStudents_year.getSelectionModel().getSelectedItem() == null
                     || addStudents_course.getSelectionModel().getSelectedItem() == null
@@ -456,104 +491,118 @@ public class DashboardController implements Initializable {
                     || addStudents_gender.getSelectionModel().getSelectedItem() == null
                     || addStudents_birth.getValue() == null
                     || addStudents_status.getSelectionModel().getSelectedItem() == null
-                    || getData.path == null || getData.path == "") {
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
-            } else {
-                // CHECK IF THE STUDENTNUMBER IS ALREADY EXIST
-                String checkData = "SELECT studentNum FROM student WHERE studentNum = '"
-                        + addStudents_studentNum.getText() + "'";
-
-                statement = connect.createStatement();
-                result = statement.executeQuery(checkData);
-
-                if (result.next()) {
-                    alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Error Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Student #" + addStudents_studentNum.getText() + " was already exist!");
-                    alert.showAndWait();
-                } else {
-                    prepare = connect.prepareStatement(insertData, Statement.RETURN_GENERATED_KEYS);
-                    prepare.setString(1, addStudents_studentNum.getText());
-                    prepare.setString(2, (String) addStudents_year.getSelectionModel().getSelectedItem());
-                    prepare.setString(3, (String) addStudents_course.getSelectionModel().getSelectedItem());
-                    prepare.setString(4, addStudents_firstName.getText());
-                    prepare.setString(5, addStudents_lastName.getText());
-                    prepare.setString(6, (String) addStudents_gender.getSelectionModel().getSelectedItem());
-                    prepare.setString(7, String.valueOf(addStudents_birth.getValue()));
-                    prepare.setString(8, (String) addStudents_status.getSelectionModel().getSelectedItem());
-
-                    String uri = getData.path;
-                    uri = uri.replace("\\", "\\\\");
-                    prepare.setString(9, uri);
-
-                    Date date = new Date();
-                    java.sql.Date sqlDate = new java.sql.Date(date.getTime());
-                    prepare.setString(10, String.valueOf(sqlDate));
-
-                    prepare.executeUpdate();
-                    //Add id in table
-                    ResultSet generatedKeys = prepare.getGeneratedKeys();
-                    int studentId = -1;
-                    if (generatedKeys.next()) {
-                        studentId = generatedKeys.getInt(1);
-                    } else {
-                        // Handle error
-                        System.out.println("Error No ID Student!");
-                        return;
-                    }
-
-                    String insertStudentGrade = "INSERT INTO student_grade (student_id, studentNum, year, course, first_sem, second_sem, final) "
-                            + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    PreparedStatement insertGradeStatement = connect.prepareStatement(insertStudentGrade);
-                    insertGradeStatement.setInt(1, studentId);
-                    insertGradeStatement.setString(2, addStudents_studentNum.getText());
-                    insertGradeStatement.setString(3, addStudents_year.getValue().toString());
-                    insertGradeStatement.setString(4, addStudents_course.getValue().toString());
-                    insertGradeStatement.setDouble(5, 0.0);
-                    insertGradeStatement.setDouble(6, 0.0);
-                    insertGradeStatement.setDouble(7, 0.0);
-                    insertGradeStatement.executeUpdate();
-                    insertGradeStatement.close();
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Added!");
-                    alert.showAndWait();
-
-                    // TO UPDATE THE TABLEVIEW
-                    addStudentsShowListData();
-                    // TO CLEAR THE FIELDS
-                    addStudentsClear();
-                }
+                    || GetData.path == null || GetData.path == "") {
+                showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
+                return;
             }
 
+            // Check if student number already exists
+            if (isStudentNumberExists(addStudents_studentNum.getText())) {
+                showAlert(AlertType.ERROR, "Error Message", "Student #" + addStudents_studentNum.getText() + " already exists!");
+                return;
+            }
+
+            // Get course ID
+            int courseId = getCourseId((String) addStudents_course.getSelectionModel().getSelectedItem());
+            if (courseId == -1) {
+                showAlert(AlertType.ERROR, "Error Message", "Selected course does not exist!");
+                return;
+            }
+
+            // Prepare student data insertion
+            prepare = connect.prepareStatement(insertStudentData, Statement.RETURN_GENERATED_KEYS);
+            prepare.setString(1, addStudents_studentNum.getText());
+            prepare.setString(2, addStudents_year.getValue().toString());
+            prepare.setInt(3, courseId);
+            prepare.setString(4, addStudents_firstName.getText());
+            prepare.setString(5, addStudents_lastName.getText());
+            prepare.setString(6, addStudents_gender.getValue().toString());
+            prepare.setString(7, addStudents_birth.getValue().toString());
+            prepare.setString(8, addStudents_status.getValue().toString());
+            prepare.setString(9, GetData.path);
+            prepare.setDate(10, new java.sql.Date(new Date().getTime()));
+            prepare.executeUpdate();
+
+            // Get auto-generated student ID
+            ResultSet generatedKeys = prepare.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                generatedKeys.getInt(1);
+            } else {
+                showAlert(AlertType.ERROR, "Error Message", "Failed to retrieve student ID!");
+                return;
+            }
+
+            // Prepare student grade insertion
+//            PreparedStatement insertGradeStatement = connect.prepareStatement(insertStudentGrade);
+//            insertGradeStatement.setInt(1, studentId);
+//            insertGradeStatement.setInt(2, subjectId); // Assuming you have a variable for subjectId
+//            insertGradeStatement.setDouble(3, 0.0); // Default score value
+//            insertGradeStatement.setString(4, ""); // Default status value
+//            insertGradeStatement.executeUpdate();
+//            insertGradeStatement.close();
+            showAlert(AlertType.INFORMATION, "Information Message", "Successfully Added!");
+
+            // Update the table view
+            addStudentsShowListData();
+            // Clear the fields
+            addStudentsClear();
         } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Error Message", "An error occurred while adding student!");
+        } finally {
+            closeResources();
+        }
+    }
+
+    private boolean isStudentNumberExists(String studentNum) throws SQLException {
+        String checkData = "SELECT studentNum FROM student WHERE studentNum = ?";
+        prepare = connect.prepareStatement(checkData);
+        prepare.setString(1, studentNum);
+        ResultSet resultSet = prepare.executeQuery();
+        return resultSet.next();
+    }
+
+    private int getCourseId(String courseName) throws SQLException {
+        String query = "SELECT id FROM course WHERE course_name = ?";
+        prepare = connect.prepareStatement(query);
+        prepare.setString(1, courseName);
+        ResultSet resultSet = prepare.executeQuery();
+        return resultSet.next() ? resultSet.getInt("id") : -1;
+    }
+
+    private void showAlert(AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void closeResources() {
+        try {
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @FXML
     public void addStudentsUpdate() throws SQLException {
-
-        String uri = getData.path;
+        String uri = GetData.path;
         uri = uri.replace("\\", "\\\\");
 
+        // Assuming that addStudents_course stores the course name, we need to get the course_id.
+        String selectedCourseName = (String) addStudents_course.getSelectionModel().getSelectedItem();
+        int courseId = getCourseIdByName(selectedCourseName);
+
         String updateData = "UPDATE student SET "
-                + "year = '" + addStudents_year.getSelectionModel().getSelectedItem()
-                + "', course = '" + addStudents_course.getSelectionModel().getSelectedItem()
-                + "', firstName = '" + addStudents_firstName.getText()
-                + "', lastName = '" + addStudents_lastName.getText()
-                + "', gender = '" + addStudents_gender.getSelectionModel().getSelectedItem()
-                + "', birth = '" + addStudents_birth.getValue()
-                + "', status = '" + addStudents_status.getSelectionModel().getSelectedItem()
-                + "', image = '" + uri + "' WHERE studentNum = '"
-                + addStudents_studentNum.getText() + "'";
+                + "year = ?, course_id = ?, firstName = ?, lastName = ?, gender = ?, birth = ?, status = ?, image = ? "
+                + "WHERE studentNum = ?";
 
         connect = Database.connectDb();
 
@@ -567,23 +616,32 @@ public class DashboardController implements Initializable {
                     || addStudents_gender.getSelectionModel().getSelectedItem() == null
                     || addStudents_birth.getValue() == null
                     || addStudents_status.getSelectionModel().getSelectedItem() == null
-                    || getData.path == null || getData.path == "") {
+                    || GetData.path == null || "".equals(GetData.path)) {
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
                 alert.setContentText("Please fill all blank fields");
                 alert.showAndWait();
             } else {
-
                 alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Confirmation Message");
                 alert.setHeaderText(null);
                 alert.setContentText("Are you sure you want to UPDATE Student #" + addStudents_studentNum.getText() + "?");
                 Optional<ButtonType> option = alert.showAndWait();
 
-                if (option.get().equals(ButtonType.OK)) {
-                    statement = connect.createStatement();
-                    statement.executeUpdate(updateData);
+                if (option.isPresent() && option.get() == ButtonType.OK) {
+                    PreparedStatement statement = connect.prepareStatement(updateData);
+                    statement.setString(1, (String) addStudents_year.getSelectionModel().getSelectedItem());
+                    statement.setInt(2, courseId);
+                    statement.setString(3, addStudents_firstName.getText());
+                    statement.setString(4, addStudents_lastName.getText());
+                    statement.setString(5, (String) addStudents_gender.getSelectionModel().getSelectedItem());
+                    statement.setDate(6, java.sql.Date.valueOf(addStudents_birth.getValue()));
+                    statement.setString(7, (String) addStudents_status.getSelectionModel().getSelectedItem());
+                    statement.setString(8, uri);
+                    statement.setString(9, addStudents_studentNum.getText());
+
+                    statement.executeUpdate();
 
                     alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Information Message");
@@ -595,9 +653,6 @@ public class DashboardController implements Initializable {
                     addStudentsShowListData();
                     // TO CLEAR THE FIELDS
                     addStudentsClear();
-
-                } else {
-                    return;
                 }
             }
         } catch (Exception e) {
@@ -605,9 +660,21 @@ public class DashboardController implements Initializable {
         }
     }
 
+    private int getCourseIdByName(String courseName) throws SQLException {
+        String query = "SELECT id FROM course WHERE course_name = ?";
+        connect = Database.connectDb();
+        PreparedStatement statement = connect.prepareStatement(query);
+        statement.setString(1, courseName);
+        ResultSet resultSet = statement.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt("id");
+        } else {
+            throw new SQLException("Course not found: " + courseName);
+        }
+    }
+
     @FXML
     public void addStudentsDelete() throws SQLException {
-
         String studentNum = addStudents_studentNum.getText();
 
         // Check if the student number is provided
@@ -631,17 +698,31 @@ public class DashboardController implements Initializable {
         // Check user's choice
         if (option.isPresent() && option.get() == ButtonType.OK) {
             try {
-                // Delete corresponding records in student_grade table first
-                String deleteGrade = "DELETE FROM student_grade WHERE studentNum = ?";
+                connect = Database.connectDb();
+
+                // Start a transaction
+                connect.setAutoCommit(false);
+
+                // Delete corresponding records in student_grades table first
+                String deleteGrade = "DELETE FROM student_grades WHERE student_id = (SELECT student_id FROM student WHERE studentNum = ?)";
                 PreparedStatement deleteGradeStatement = connect.prepareStatement(deleteGrade);
                 deleteGradeStatement.setString(1, studentNum);
                 deleteGradeStatement.executeUpdate();
+
+                // Delete corresponding records in class_student table
+                String deleteClassStudent = "DELETE FROM class_student WHERE student_id = (SELECT student_id FROM student WHERE studentNum = ?)";
+                PreparedStatement deleteClassStudentStatement = connect.prepareStatement(deleteClassStudent);
+                deleteClassStudentStatement.setString(1, studentNum);
+                deleteClassStudentStatement.executeUpdate();
 
                 // Then delete the student record
                 String deleteData = "DELETE FROM student WHERE studentNum = ?";
                 PreparedStatement deleteStatement = connect.prepareStatement(deleteData);
                 deleteStatement.setString(1, studentNum);
                 deleteStatement.executeUpdate();
+
+                // Commit the transaction
+                connect.commit();
 
                 // Success message
                 Alert successAlert = new Alert(AlertType.INFORMATION);
@@ -657,7 +738,23 @@ public class DashboardController implements Initializable {
                 addStudentsClear();
 
             } catch (SQLException e) {
+                // Rollback the transaction in case of error
+                if (connect != null) {
+                    try {
+                        connect.rollback();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
+            } finally {
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -674,7 +771,7 @@ public class DashboardController implements Initializable {
         addStudents_status.getSelectionModel().clearSelection();
         addStudents_imageView.setImage(null);
 
-        getData.path = "";
+        GetData.path = "";
     }
 
     @FXML
@@ -691,7 +788,7 @@ public class DashboardController implements Initializable {
             image = new Image(file.toURI().toString(), 120, 149, false, true);
             addStudents_imageView.setImage(image);
 
-            getData.path = file.getAbsolutePath();
+            GetData.path = file.getAbsolutePath();
 
         }
     } //WHILE WE INSERT THE DATA ON STUDENT, WE SHOULD INSERT ALSO THE DATA TO STUDENT_GRADE
@@ -699,7 +796,7 @@ public class DashboardController implements Initializable {
     @FXML
     public void addStudentsSearch() {
 
-        FilteredList<studentData> filter = new FilteredList<>(addStudentsListD, e -> true);
+        FilteredList<StudentData> filter = new FilteredList<>(addStudentsListD, e -> true);
 
         addStudents_search.textProperty().addListener((Observable, oldValue, newValue) -> {
 
@@ -715,7 +812,7 @@ public class DashboardController implements Initializable {
                     return true;
                 } else if (predicateStudentData.getYear().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getCourse().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getCourseName().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getFirstName().toLowerCase().contains(searchKey)) {
                     return true;
@@ -733,7 +830,7 @@ public class DashboardController implements Initializable {
             });
         });
 
-        SortedList<studentData> sortList = new SortedList<>(filter);
+        SortedList<StudentData> sortList = new SortedList<>(filter);
 
         sortList.comparatorProperty().bind(addStudents_tableView.comparatorProperty());
         addStudents_tableView.setItems(sortList);
@@ -771,7 +868,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             while (result.next()) {
-                listC.add(result.getString("course"));
+                listC.add(result.getString("course_name"));
             }
             addStudents_course.setItems(listC);
 
@@ -811,47 +908,41 @@ public class DashboardController implements Initializable {
 
 //    NOW WE NEED THE COURSE, SO LETS WORK NOW THE AVAILABLE COURSE FORM : ) 
 //    LETS WORK FIRST THE ADD STUDENTS FORM : ) 
-    public ObservableList<studentData> addStudentsListData() throws SQLException {
+    public ObservableList<StudentData> addStudentsListData() {
+        ObservableList<StudentData> listStudents = FXCollections.observableArrayList();
 
-        ObservableList<studentData> listStudents = FXCollections.observableArrayList();
+        try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement("SELECT s.studentNum, s.year, c.course_name, s.firstName, s.lastName, s.gender, s.birth, s.status, s.image FROM student s JOIN course c ON s.course_id = c.id"); ResultSet resultSet = preparedStatement.executeQuery()) {
 
-        String sql = "SELECT * FROM student";
-
-        connect = Database.connectDb();
-
-        try {
-            studentData studentD;
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-
-            while (result.next()) {
-                studentD = new studentData(result.getInt("studentNum"),
-                        result.getString("year"),
-                        result.getString("course"),
-                        result.getString("firstName"),
-                        result.getString("lastName"),
-                        result.getString("gender"),
-                        result.getDate("birth"),
-                        result.getString("status"),
-                        result.getString("image"));
+            while (resultSet.next()) {
+                StudentData studentD = new StudentData(
+                        resultSet.getInt("studentNum"),
+                        resultSet.getString("year"),
+                        resultSet.getString("course_name"),
+                        resultSet.getString("firstName"),
+                        resultSet.getString("lastName"),
+                        resultSet.getString("gender"),
+                        resultSet.getDate("birth"),
+                        resultSet.getString("status"),
+                        resultSet.getString("image")
+                );
 
                 listStudents.add(studentD);
             }
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return listStudents;
     }
 
-    private ObservableList<studentData> addStudentsListD;
+    private ObservableList<StudentData> addStudentsListD;
 
-    public void addStudentsShowListData() throws SQLException {
-        addStudentsListD = addStudentsListData();
+    public void addStudentsShowListData() {
+        ObservableList<StudentData> addStudentsListD = addStudentsListData();
 
         addStudents_col_studentNum.setCellValueFactory(new PropertyValueFactory<>("studentNum"));
         addStudents_col_year.setCellValueFactory(new PropertyValueFactory<>("year"));
-        addStudents_col_course.setCellValueFactory(new PropertyValueFactory<>("course"));
+        addStudents_col_course.setCellValueFactory(new PropertyValueFactory<>("courseName"));
         addStudents_col_firstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         addStudents_col_lastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         addStudents_col_gender.setCellValueFactory(new PropertyValueFactory<>("gender"));
@@ -865,7 +956,7 @@ public class DashboardController implements Initializable {
     @FXML
     public void addStudentsSelect() {
 
-        studentData studentD = addStudents_tableView.getSelectionModel().getSelectedItem();
+        StudentData studentD = addStudents_tableView.getSelectionModel().getSelectedItem();
         int num = addStudents_tableView.getSelectionModel().getSelectedIndex();
 
         if ((num - 1) < -1) {
@@ -882,14 +973,14 @@ public class DashboardController implements Initializable {
         image = new Image(uri, 120, 149, false, true);
         addStudents_imageView.setImage(image);
 
-        getData.path = studentD.getImage();
+        GetData.path = studentD.getImage();
 
     }
 
     @FXML
     public void availableCourseAdd() throws SQLException {
 
-        String insertData = "INSERT INTO course (course,description,degree) VALUES(?,?,?)";
+        String insertData = "INSERT INTO course (course_name,description,degree) VALUES(?,?,?)";
 
         connect = Database.connectDb();
 
@@ -906,7 +997,7 @@ public class DashboardController implements Initializable {
                 alert.showAndWait();
             } else {
 //            CHECK IF THE COURSE YOU WANT TO INSERT IS ALREADY EXIST!
-                String checkData = "SELECT course FROM course WHERE course = '"
+                String checkData = "SELECT course_name FROM course WHERE course_name  = '"
                         + availableCourse_course.getText() + "'";
 
                 statement = connect.createStatement();
@@ -941,17 +1032,22 @@ public class DashboardController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Close resources
+            if (result != null) {
+                result.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
         }
     }
 
     @FXML
     public void availableCourseUpdate() throws SQLException {
-
-        String updateData = "UPDATE course SET description = '"
-                + availableCourse_description.getText() + "', degree = '"
-                + availableCourse_degree.getText() + "' WHERE course = '"
-                + availableCourse_course.getText() + "'";
-
         connect = Database.connectDb();
 
         try {
@@ -966,16 +1062,20 @@ public class DashboardController implements Initializable {
                 alert.setContentText("Please fill all blank fields");
                 alert.showAndWait();
             } else {
-
                 alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Confirmation Message");
                 alert.setHeaderText(null);
                 alert.setContentText("Are you sure you want to UPDATE Course: " + availableCourse_course.getText() + "?");
                 Optional<ButtonType> option = alert.showAndWait();
 
-                if (option.get().equals(ButtonType.OK)) {
-                    statement = connect.createStatement();
-                    statement.executeUpdate(updateData);
+                if (option.isPresent() && option.get() == ButtonType.OK) {
+                    String updateData = "UPDATE course SET description = ?, degree = ? WHERE course_name = ?";
+                    prepare = connect.prepareStatement(updateData);
+                    prepare.setString(1, availableCourse_description.getText());
+                    prepare.setString(2, availableCourse_degree.getText());
+                    prepare.setString(3, availableCourse_course.getText());
+
+                    prepare.executeUpdate();
 
                     alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Information Message");
@@ -983,28 +1083,28 @@ public class DashboardController implements Initializable {
                     alert.setContentText("Successfully Updated!");
                     alert.showAndWait();
 
-                    // TO BECOME UPDATED OUR TABLEVIEW ONCE THE DATA WE GAVE SUCCESSFUL
+                    // Refresh the table view after successful update
                     availableCourseShowListData();
-                    // TO CLEAR THE TEXT FIELDS
+                    // Clear the text fields
                     availableCourseClear();
-
-                } else {
-                    return;
                 }
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Close resources
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
         }
-
     }
 
     @FXML
     public void availableCourseDelete() throws SQLException {
-
-        String deleteData = "DELETE FROM course WHERE course = '"
-                + availableCourse_course.getText() + "'";
+        String deleteData = "DELETE FROM course WHERE course_name = ?";
 
         connect = Database.connectDb();
 
@@ -1020,16 +1120,16 @@ public class DashboardController implements Initializable {
                 alert.setContentText("Please fill all blank fields");
                 alert.showAndWait();
             } else {
-//                ALL GOOD GUYS! NOW LETS PROCEED TO ADD STUDENTS FORM
                 alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Confirmation Message");
                 alert.setHeaderText(null);
                 alert.setContentText("Are you sure you want to DELETE Course: " + availableCourse_course.getText() + "?");
                 Optional<ButtonType> option = alert.showAndWait();
 
-                if (option.get().equals(ButtonType.OK)) {
-                    statement = connect.createStatement();
-                    statement.executeUpdate(deleteData);
+                if (option.isPresent() && option.get() == ButtonType.OK) {
+                    prepare = connect.prepareStatement(deleteData);
+                    prepare.setString(1, availableCourse_course.getText());
+                    prepare.executeUpdate();
 
                     alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Information Message");
@@ -1037,20 +1137,23 @@ public class DashboardController implements Initializable {
                     alert.setContentText("Successfully Deleted!");
                     alert.showAndWait();
 
-                    // TO BECOME UPDATED OUR TABLEVIEW ONCE THE DATA WE GAVE SUCCESSFUL
+                    // Refresh the table view after successful deletion
                     availableCourseShowListData();
-                    // TO CLEAR THE TEXT FIELDS
+                    // Clear the text fields
                     availableCourseClear();
-
-                } else {
-                    return;
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Close resources
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
         }
-
     }
 
     @FXML
@@ -1060,34 +1163,42 @@ public class DashboardController implements Initializable {
         availableCourse_degree.setText("");
     }
 
-    public ObservableList<courseData> availableCourseListData() throws SQLException {
-
-        ObservableList<courseData> listData = FXCollections.observableArrayList();
+    public ObservableList<CourseData> availableCourseListData() throws SQLException {
+        ObservableList<CourseData> listData = FXCollections.observableArrayList();
 
         String sql = "SELECT * FROM course";
 
         connect = Database.connectDb();
 
         try {
-            courseData courseD;
+            CourseData courseD;
             prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
+            ResultSet result = prepare.executeQuery();
 
             while (result.next()) {
-                courseD = new courseData(result.getString("course"),
+                courseD = new CourseData(
+                        result.getString("course_name"),
                         result.getString("description"),
-                        result.getString("degree"));
+                        result.getString("degree")
+                );
 
                 listData.add(courseD);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
         }
         return listData;
     }
 
-    private ObservableList<courseData> availableCourseList;
+    private ObservableList<CourseData> availableCourseList;
 
     public void availableCourseShowListData() throws SQLException {
         availableCourseList = availableCourseListData();
@@ -1102,17 +1213,13 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void availableCourseSelect() {
-        courseData courseD = availableCourse_tableView.getSelectionModel().getSelectedItem();
-        int num = availableCourse_tableView.getSelectionModel().getSelectedIndex();
+        CourseData courseD = availableCourse_tableView.getSelectionModel().getSelectedItem();
+        if (courseD != null) {
+            availableCourse_course.setText(courseD.getCourse());
+            availableCourse_description.setText(courseD.getDescription());
+            availableCourse_degree.setText(courseD.getDegree());
 
-        if ((num - 1) < -1) {
-            return;
         }
-
-        availableCourse_course.setText(courseD.getCourse());
-        availableCourse_description.setText(courseD.getDescription());
-        availableCourse_degree.setText(courseD.getDegree());
-
     }
 
     @FXML
@@ -1202,22 +1309,22 @@ public class DashboardController implements Initializable {
         studentGrade_secondSem.setText("");
     }
 
-    public ObservableList<studentData> studentGradesListData() throws SQLException {
+    public ObservableList<StudentData> studentGradesListData() throws SQLException {
 
-        ObservableList<studentData> listData = FXCollections.observableArrayList();
+        ObservableList<StudentData> listData = FXCollections.observableArrayList();
 
         String sql = "SELECT * FROM student_grade";
 
         connect = Database.connectDb();
 
         try {
-            studentData studentD;
+            StudentData studentD;
 
             prepare = connect.prepareStatement(sql);
             result = prepare.executeQuery();
 
             while (result.next()) {
-                studentD = new studentData(result.getInt("studentNum"),
+                studentD = new StudentData(result.getInt("studentNum"),
                         result.getString("year"),
                         result.getString("course"),
                         result.getDouble("first_sem"),
@@ -1232,7 +1339,7 @@ public class DashboardController implements Initializable {
         return listData;
     }
 
-    private ObservableList<studentData> studentGradesList;
+    private ObservableList<StudentData> studentGradesList;
 
     public void studentGradesShowListData() throws SQLException {
         studentGradesList = studentGradesListData();
@@ -1251,7 +1358,7 @@ public class DashboardController implements Initializable {
     @FXML
     public void studentGradesSelect() {
 
-        studentData studentD = studentGrade_tableView.getSelectionModel().getSelectedItem();
+        StudentData studentD = studentGrade_tableView.getSelectionModel().getSelectedItem();
         int num = studentGrade_tableView.getSelectionModel().getSelectedIndex();
 
         if ((num - 1) < -1) {
@@ -1260,7 +1367,7 @@ public class DashboardController implements Initializable {
 
         studentGrade_studentNum.setText(String.valueOf(studentD.getStudentNum()));
         studentGrade_year.setText(studentD.getYear());
-        studentGrade_course.setText(studentD.getCourse());
+        studentGrade_course.setText(studentD.getCourseName());
         studentGrade_firstSem.setText(String.valueOf(studentD.getFirstSem()));
         studentGrade_secondSem.setText(String.valueOf(studentD.getSecondSem()));
     }
@@ -1268,7 +1375,7 @@ public class DashboardController implements Initializable {
     @FXML
     public void studentGradesSearch() {
 
-        FilteredList<studentData> filter = new FilteredList<>(studentGradesList, e -> true);
+        FilteredList<StudentData> filter = new FilteredList<>(studentGradesList, e -> true);
 
         studentGrade_search.textProperty().addListener((Observable, oldValue, newValue) -> {
 
@@ -1283,7 +1390,7 @@ public class DashboardController implements Initializable {
                     return true;
                 } else if (predicateStudentData.getYear().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getCourse().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getCourseName().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getFirstSem().toString().contains(searchKey)) {
                     return true;
@@ -1297,13 +1404,245 @@ public class DashboardController implements Initializable {
             });
         });
 
-        SortedList<studentData> sortList = new SortedList<>(filter);
+        SortedList<StudentData> sortList = new SortedList<>(filter);
 
         sortList.comparatorProperty().bind(studentGrade_tableView.comparatorProperty());
         studentGrade_tableView.setItems(sortList);
 
     }
+//SUBJECT
+    private ObservableList<SubjectData> subjectListData;
+    private ObservableList<CourseData> courseListData;
 
+    private void loadCourseData() {
+        courseListData = FXCollections.observableArrayList();
+        String query = "SELECT id, course_name FROM course";
+        try {
+            connect = Database.connectDb();
+            prepare = connect.prepareStatement(query);
+            result = prepare.executeQuery();
+
+            while (result.next()) {
+                CourseData course = new CourseData(result.getInt("id"),
+                        result.getString("course_name"));
+                courseListData.add(course);
+            }
+            comboCourse.setItems(courseListData);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeDatabaseResources();
+        }
+    }
+
+    private void setupCourseComboBox() {
+        comboCourse.setConverter(new StringConverter<CourseData>() {
+            @Override
+            public String toString(CourseData courseData) {
+                return courseData == null ? null : courseData.getCourse();
+            }
+
+            @Override
+            public CourseData fromString(String s) {
+                return null; // Not needed for ComboBox display
+            }
+        });
+    }
+
+    @FXML
+    public void addSubject() {
+        String subjectName = txtSubjectName.getText();
+        CourseData selectedCourse = comboCourse.getValue();
+
+        if (subjectName.isEmpty() || selectedCourse == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields.");
+            return;
+        }
+
+        String insertSubjectQuery = "INSERT INTO subject (subject_name) VALUES (?)";
+        String linkCourseSubjectQuery = "INSERT INTO course_subject (course_id, subject_id) VALUES (?, ?)";
+
+        try {
+            connect = Database.connectDb();
+            // Insert the subject into the subject table
+            prepare = connect.prepareStatement(insertSubjectQuery, Statement.RETURN_GENERATED_KEYS);
+            prepare.setString(1, subjectName);
+            prepare.executeUpdate();
+
+            // Retrieve the generated subject ID
+            ResultSet generatedKeys = prepare.getGeneratedKeys();
+            int subjectId = 0;
+            if (generatedKeys.next()) {
+                subjectId = generatedKeys.getInt(1);
+            }
+
+            // Link the subject to the selected course in the course_subject table
+            prepare = connect.prepareStatement(linkCourseSubjectQuery);
+            prepare.setInt(1, selectedCourse.getId());
+            prepare.setInt(2, subjectId);
+            prepare.executeUpdate();
+
+            // Show success message and update UI
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject added to course successfully!");
+            subjectShowListData();
+            clearSubject();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeDatabaseResources();
+        }
+    }
+
+    @FXML
+    public void updateSubject() {
+        String subjectId = txtSubjectId.getText();
+        String subjectName = txtSubjectName.getText();
+        CourseData selectedCourse = comboCourse.getValue();
+
+        if (subjectId.isEmpty() || subjectName.isEmpty() || selectedCourse == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields.");
+            return;
+        }
+
+        String updateSubjectQuery = "UPDATE subject SET subject_name = ? WHERE subject_id = ?";
+        String updateCourseSubjectQuery = "UPDATE course_subject SET course_id = ? WHERE subject_id = ?";
+
+        try {
+            connect = Database.connectDb();
+            prepare = connect.prepareStatement(updateSubjectQuery);
+            prepare.setString(1, subjectName);
+            prepare.setInt(2, Integer.parseInt(subjectId));
+            prepare.executeUpdate();
+
+            prepare = connect.prepareStatement(updateCourseSubjectQuery);
+            prepare.setInt(1, selectedCourse.getId());
+            prepare.setInt(2, Integer.parseInt(subjectId));
+            prepare.executeUpdate();
+
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject and course updated successfully!");
+            subjectShowListData();
+            clearSubject();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeDatabaseResources();
+        }
+    }
+
+    @FXML
+    public void deleteSubject() {
+        String subjectId = txtSubjectId.getText();
+
+        if (subjectId.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter the subject ID.");
+            return;
+        }
+
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation");
+        confirmationAlert.setHeaderText(null);
+        confirmationAlert.setContentText("Are you sure you want to delete this subject?");
+        Optional<ButtonType> option = confirmationAlert.showAndWait();
+
+        if (option.isPresent() && option.get() == ButtonType.OK) {
+            String deleteCourseSubjectQuery = "DELETE FROM course_subject WHERE subject_id = ?";
+            String deleteSubjectQuery = "DELETE FROM subject WHERE subject_id = ?";
+
+            try {
+                connect = Database.connectDb();
+                prepare = connect.prepareStatement(deleteCourseSubjectQuery);
+                prepare.setInt(1, Integer.parseInt(subjectId));
+                prepare.executeUpdate();
+
+                prepare = connect.prepareStatement(deleteSubjectQuery);
+                prepare.setInt(1, Integer.parseInt(subjectId));
+                prepare.executeUpdate();
+
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Subject deleted successfully!");
+                subjectShowListData();
+                clearSubject();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeDatabaseResources();
+            }
+        }
+    }
+
+    @FXML
+    public void handleRowSelect() {
+        SubjectData selectedSubject = tableSubjects.getSelectionModel().getSelectedItem();
+        if (selectedSubject != null) {
+            txtSubjectId.setText(String.valueOf(selectedSubject.getSubjectId()));
+            txtSubjectName.setText(selectedSubject.getSubjectName());
+
+            // Set the value of comboCourse based on the selected subject's course name
+            for (CourseData course : courseListData) {
+                if (course.getCourse().equals(selectedSubject.getCourseName())) {
+                    comboCourse.setValue(course);
+                    break;
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void clearSubject() {
+        txtSubjectId.clear();
+        txtSubjectName.clear();
+        comboCourse.getSelectionModel().clearSelection();
+    }
+
+    private ObservableList<SubjectData> loadSubjectData() throws SQLException {
+        subjectListData = FXCollections.observableArrayList();
+        String query = "SELECT s.subject_id, s.subject_name, c.course_name "
+                + "FROM subject s "
+                + "JOIN course_subject cs ON s.subject_id = cs.subject_id "
+                + "JOIN course c ON cs.course_id = c.id";
+        try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement(query); ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                SubjectData subject = new SubjectData(
+                        resultSet.getInt("subject_id"),
+                        resultSet.getString("subject_name"),
+                        resultSet.getString("course_name")
+                );
+                subjectListData.add(subject);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return subjectListData;
+    }
+
+    public void subjectShowListData() throws SQLException {
+        ObservableList<SubjectData> subjectData = loadSubjectData();
+        colSubjectId.setCellValueFactory(new PropertyValueFactory<>("subjectId"));
+        colSubjectName.setCellValueFactory(new PropertyValueFactory<>("subjectName"));
+        colCourseName.setCellValueFactory(new PropertyValueFactory<>("courseName")); // Adjust column mapping
+        tableSubjects.setItems(subjectData);
+    }
+
+    private void closeDatabaseResources() {
+        try {
+            if (result != null) {
+                result.close();
+            }
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Logout
     private double x = 0;
     private double y = 0;
 
@@ -1354,14 +1693,13 @@ public class DashboardController implements Initializable {
                 return;
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
         }
 
     }
 
     public void displayUsername() {
-        username.setText(getData.username);
+        username.setText(GetData.username);
     }
 
     public void defaultNav() {
@@ -1378,6 +1716,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(false);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             home_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1386,6 +1725,7 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
 
             homeDisplayTotalEnrolledStudents();
             homeDisplayMaleEnrolled();
@@ -1402,6 +1742,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(false);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             addStudents_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             home_btn.setStyle("-fx-background-color:transparent");
@@ -1410,6 +1751,8 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
+
 //            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
             addStudentsShowListData();
             addStudentsYearList();
@@ -1426,6 +1769,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(false);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             availableCourse_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1434,6 +1778,8 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
+
             availableCourseShowListData();
 
         } else if (event.getSource() == studentGrade_btn) {
@@ -1444,6 +1790,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(false);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             studentGrade_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1452,6 +1799,7 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
 
             studentGradesShowListData();
             studentGradesSearch();
@@ -1464,6 +1812,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(true);
             Class_form.setVisible(false);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             studentGrade_btn.setStyle("-fx-background-color:transparent);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1472,6 +1821,8 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
+
 //            studentGradesShowListData();
 //            studentGradesSearch();
         } else if (event.getSource() == Class_btn) {
@@ -1482,6 +1833,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(true);
             Sro_form.setVisible(false);
+            Subject_form.setVisible(false);
 
             studentGrade_btn.setStyle("-fx-background-color:transparent);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1490,6 +1842,8 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Subject_btn.setStyle("-fx-background-color:transparent");
+
 //            studentGradesShowListData();
 //            studentGradesSearch();
         } else if (event.getSource() == Sro_btn) {
@@ -1500,6 +1854,7 @@ public class DashboardController implements Initializable {
             teacher_form.setVisible(false);
             Class_form.setVisible(false);
             Sro_form.setVisible(true);
+            Subject_form.setVisible(false);
 
             studentGrade_btn.setStyle("-fx-background-color:transparent);");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -1508,9 +1863,33 @@ public class DashboardController implements Initializable {
             teacher_btn.setStyle("-fx-background-color:transparent");
             Sro_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:transparent");
+
 //            studentGradesShowListData();
 //            studentGradesSearch();
-        } 
+        } else if (event.getSource() == Subject_btn) {
+            home_form.setVisible(false);
+            addStudents_form.setVisible(false);
+            availableCourse_form.setVisible(false);
+            studentGrade_form.setVisible(false);
+            teacher_form.setVisible(false);
+            Class_form.setVisible(false);
+            Sro_form.setVisible(false);
+            Subject_form.setVisible(true);
+
+            studentGrade_btn.setStyle("-fx-background-color:transparent);");
+            addStudents_btn.setStyle("-fx-background-color:transparent");
+            availableCourse_btn.setStyle("-fx-background-color:transparent");
+            home_btn.setStyle("-fx-background-color:transparent");
+            teacher_btn.setStyle("-fx-background-color:transparent");
+            Sro_btn.setStyle("-fx-background-color:transparent");
+            Class_btn.setStyle("-fx-background-color:transparent");
+            Subject_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+
+            setupCourseComboBox();
+            subjectShowListData();
+            loadCourseData();
+        }
     }
 
     @FXML

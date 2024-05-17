@@ -1,17 +1,30 @@
 package entity;
 
-public class courseData {
-
+public class CourseData {
+    private int Id;
     private String course;
     private String description;
     private String degree;
 
-    public courseData(String course, String description, String degree) {
+    public CourseData(String course, String description, String degree) {
         this.course = course;
         this.description = description;
         this.degree = degree;
     }
 
+    public CourseData(int Id, String course) {
+        this.course = course;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int Id) {
+        this.Id = Id;
+    }
+
+    
     public String getCourse() {
         return course;
     }

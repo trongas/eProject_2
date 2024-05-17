@@ -116,6 +116,11 @@
                                     <FontAwesomeIcon fill="#f7f0f0" glyphName="TASKS" size="1.5em" text="" />
                                  </graphic>
                               </Button>
+                              <Button fx:id="Subject_btn" layoutX="12.0" layoutY="456.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="35.0" prefWidth="180.0" styleClass="nav-btn" stylesheets="@../assct/dashboardDesign.css" text="Subject">
+                                 <graphic>
+                                    <FontAwesomeIcon fill="#f7f0f0" glyphName="" size="1.5em" text="" />
+                                 </graphic>
+                              </Button>
                                     </children>
                                 </AnchorPane>
                             </children>
@@ -124,7 +129,7 @@
                     <center>
                         <AnchorPane prefHeight="846.0" prefWidth="897.0" BorderPane.alignment="CENTER">
                             <children>
-                                <AnchorPane fx:id="home_form" layoutX="90.0" layoutY="138.0" prefHeight="555.0" prefWidth="897.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <AnchorPane fx:id="home_form" layoutX="90.0" layoutY="138.0" prefHeight="555.0" prefWidth="897.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <AnchorPane layoutX="13.0" layoutY="12.0" prefHeight="532.0" prefWidth="872.0" stylesheets="@../assct/dashboardDesign.css">
                                             <styleClass>
@@ -324,7 +329,7 @@
                                                         <ImageView fx:id="addStudents_imageView" fitHeight="149.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
                                                     </children>
                                                 </AnchorPane>
-                                                <Button fx:id="addStudents_addBtn" layoutX="765.0" layoutY="480.0" mnemonicParsing="false" onAction="#addStudentsAdd" prefHeight="35.0" prefWidth="85.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
+                                                <Button fx:id="addStudents_addBtn" alignment="CENTER" layoutX="765.0" layoutY="480.0" mnemonicParsing="false" onAction="#addStudentsAdd" prefHeight="35.0" prefWidth="85.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
                                                 <Button fx:id="addStudents_updateBtn" alignment="CENTER" layoutX="669.0" layoutY="480.0" mnemonicParsing="false" onAction="#addStudentsUpdate" prefHeight="35.0" prefWidth="85.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
                                                 <Button fx:id="addStudents_deleteBtn" alignment="CENTER" layoutX="546.0" layoutY="480.0" mnemonicParsing="false" onAction="#addStudentsDelete" prefHeight="35.0" prefWidth="85.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
                                                 <Button fx:id="addStudents_clearBtn" alignment="CENTER" layoutX="450.0" layoutY="480.0" mnemonicParsing="false" onAction="#addStudentsClear" prefHeight="35.0" prefWidth="85.0" styleClass="clear-btn" stylesheets="@../assct/dashboardDesign.css" text="Clear" />
@@ -373,8 +378,8 @@
                                             <children>
                                                 <TableView fx:id="availableCourse_tableView" layoutX="11.0" layoutY="13.0" onMouseClicked="#availableCourseSelect" prefHeight="490.0" prefWidth="557.0" stylesheets="@../assct/dashboardDesign.css">
                                                     <columns>
-                                                        <TableColumn fx:id="availableCourse_col_course" prefWidth="79.0" text="    Course" />
-                                                        <TableColumn fx:id="availableCourse_col_description" prefWidth="214.0" text="                   Description" />
+                                                        <TableColumn fx:id="availableCourse_col_course" prefWidth="79.0" text="Course" />
+                                                        <TableColumn fx:id="availableCourse_col_description" prefWidth="214.0" text="Description" />
                                                         <TableColumn fx:id="availableCourse_col_degree" prefWidth="262.0" text="Degree" />
                                                     </columns>
                                                 </TableView>
@@ -623,6 +628,55 @@
                                     </TableView>
                                     <TextField fx:id="Teacher_Search11" layoutX="14.0" layoutY="14.0" onKeyTyped="#studentGradesSearch" prefHeight="30.0" prefWidth="269.0" promptText="Search" styleClass="search" stylesheets="@../assct/dashboardDesign.css" />
                                     <FontAwesomeIcon glyphName="SEARCH" layoutX="22.0" layoutY="35.0" size="1.5em" />
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="Subject_form" layoutX="10.0" layoutY="10.0" prefHeight="555.0" prefWidth="897.0">
+                           <children>
+                              <AnchorPane layoutX="12.0" layoutY="19.0" prefHeight="529.0" prefWidth="272.0" stylesheets="@../assct/dashboardDesign.css">
+                                 <styleClass>
+                                    <String fx:value="shadow" />
+                                    <String fx:value="white-bg" />
+                                 </styleClass>
+                                 <children>
+                                    <Label layoutX="50.0" layoutY="39.0" text="Subject:">
+                                       <font>
+                                          <Font name="Tahoma" size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="txtSubjectId" layoutX="108.0" layoutY="36.0" prefHeight="25.0" prefWidth="155.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                    <Label layoutX="6.0" layoutY="95.0" text="Subject Name:">
+                                       <font>
+                                          <Font name="Tahoma" size="15.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="txtSubjectName" layoutX="108.0" layoutY="92.0" prefHeight="25.0" prefWidth="155.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                    <Button fx:id="Subject_addBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="34.0" layoutY="186.0" mnemonicParsing="false" onAction="#addSubject" prefHeight="41.0" prefWidth="85.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
+                                    <Button fx:id="Subject_updateBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="153.0" layoutY="186.0" mnemonicParsing="false" onAction="#updateSubject" prefHeight="41.0" prefWidth="85.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
+                                    <Button fx:id="Subject_clearBtn" alignment="CENTER" layoutX="34.0" layoutY="265.0" mnemonicParsing="false" onAction="#clearSubject" prefHeight="41.0" prefWidth="85.0" styleClass="clear-btn" stylesheets="@../assct/dashboardDesign.css" text="Clear" />
+                                    <Button fx:id="Subject_deleteBtn" alignment="CENTER" layoutX="153.0" layoutY="265.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="41.0" prefWidth="85.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
+                                    <Label layoutX="53.0" layoutY="143.0" text="Course:">
+                                       <font>
+                                          <Font name="Tahoma" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="comboCourse" layoutX="108.0" layoutY="139.0" prefHeight="26.0" prefWidth="157.0" promptText=" Select Course" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                 </children>
+                              </AnchorPane>
+                              <AnchorPane layoutX="304.0" layoutY="25.0" prefHeight="512.0" prefWidth="579.0" stylesheets="@../assct/dashboardDesign.css">
+                                 <styleClass>
+                                    <String fx:value="shadow" />
+                                    <String fx:value="white-bg" />
+                                 </styleClass>
+                                 <children>
+                                    <TableView fx:id="tableSubjects" layoutX="11.0" layoutY="13.0" onMouseClicked="#availableCourseSelect" prefHeight="490.0" prefWidth="558.0" stylesheets="@../assct/dashboardDesign.css">
+                                       <columns>
+                                          <TableColumn fx:id="colSubjectId" prefWidth="114.39996337890625" text="ID" />
+                                          <TableColumn fx:id="colSubjectName" prefWidth="203.20001220703125" text="Name" />
+                                          <TableColumn fx:id="colCourseName" prefWidth="239.19989013671875" text="Course" />
+                                       </columns>
+                                    </TableView>
                                  </children>
                               </AnchorPane>
                            </children>

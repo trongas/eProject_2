@@ -23,7 +23,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import database.Database;
-import entity.getData;
+import entity.GetData;
 
 public class LoginController implements Initializable {
 
@@ -77,7 +77,7 @@ public class LoginController implements Initializable {
                 if (result.next()) {
 //                    THEN PROCEED TO DASHBOARD FORM
 
-                    getData.username = username.getText();
+                    GetData.username = username.getText();
 
                     alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Information Message");

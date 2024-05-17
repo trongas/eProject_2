@@ -14,7 +14,7 @@ public class Database {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Thiết lập thông tin kết nối
-            String url = "jdbc:mysql://localhost/studentmanagement?useSSL=false";
+            String url = "jdbc:mysql://localhost/student_management_system?useSSL=false";
             String username = "root";
             String password = "trong190724";
 
