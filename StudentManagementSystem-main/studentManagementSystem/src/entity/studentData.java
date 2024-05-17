@@ -2,11 +2,11 @@ package entity;
 
 import java.sql.Date;
 
-public class studentData {
+public class StudentData {
 
     private Integer studentNum;
     private String year;
-    private String course;
+    private String courseName;
     private String firstName;
     private String lastName;
     private String gender;
@@ -17,10 +17,10 @@ public class studentData {
     private Double secondSem;
     private Double finals;
 
-    public studentData(Integer studentNum, String year, String course, String firstName, String lastName, String gender, Date birth, String status, String image) {
+    public StudentData(Integer studentNum, String year, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image) {
         this.studentNum = studentNum;
         this.year = year;
-        this.course = course;
+        this.courseName = courseName;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -29,10 +29,10 @@ public class studentData {
         this.image = image;
     }
 
-    public studentData(Integer studentNum, String year, String course, Double firstSem, Double secondSem, Double finals) {
+    public StudentData(Integer studentNum, String year, String courseName, Double firstSem, Double secondSem, Double finals) {
         this.studentNum = studentNum;
         this.year = year;
-        this.course = course;
+        this.courseName = courseName;
         this.firstSem = firstSem;
         this.secondSem = secondSem;
         this.finals = finals;
@@ -46,8 +46,8 @@ public class studentData {
         return year;
     }
 
-    public String getCourse() {
-        return course;
+    public String getCourseName() {
+        return courseName;
     }
 
     public String getFirstName() {
@@ -86,4 +86,52 @@ public class studentData {
         return finals;
     }
 
+    public void setStudentNum(Integer studentNum) {
+        this.studentNum = studentNum;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setBirth(Date birth) {
+        this.birth = birth;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setFirstSem(Double firstSem) {
+        this.firstSem = firstSem;
+    }
+
+    public void setSecondSem(Double secondSem) {
+        this.secondSem = secondSem;
+    }
+
+    public void setFinals(Double finals) {
+        this.finals = finals;
+    }
+    
 }
