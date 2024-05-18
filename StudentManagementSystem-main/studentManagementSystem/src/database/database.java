@@ -16,7 +16,7 @@ public class Database {
             // Thiết lập thông tin kết nối
             String url = "jdbc:mysql://localhost/student_management_system?useSSL=false";
             String username = "root";
-            String password = "trong190724";
+            String password = "123456";
 
             // Trả về kết nối
             return DriverManager.getConnection(url, username, password);
