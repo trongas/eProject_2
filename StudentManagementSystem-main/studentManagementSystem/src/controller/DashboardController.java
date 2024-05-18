@@ -315,7 +315,45 @@ public class DashboardController implements Initializable {
 
     @FXML
     private Button Subject_updateBtn;
-    //VAY THOI XONG ANH CODE TRONG DAY LA OKE
+
+    @FXML
+    private Button Class_AddBtn;
+
+    @FXML
+    private Button Class_ClearBtn;
+
+    @FXML
+    private Button Class_DeleteBtn;
+    
+    @FXML
+    private Button Class_UpdateBtn;
+        
+    @FXML
+    private ComboBox<?> Class_ListSRO;
+
+    @FXML
+    private ComboBox<?> Class_ListSubject;
+
+    @FXML
+    private TextField Class_Name;
+
+    @FXML
+    private ComboBox<?> Class_Teacher;
+    
+    @FXML
+    private TextField Class_Search;
+    
+    @FXML
+    private TableView<?> tableClass;
+    @FXML
+    private TableColumn<?, ?> colClassName;
+    @FXML
+    private TableColumn<?, ?> colClassSRO;
+    @FXML
+    private TableColumn<?, ?> colClassSubject;
+    @FXML
+    private TableColumn<?, ?> colClassTeacher;
+
     private Connection connect;
     private PreparedStatement prepare;
     private Statement statement;
