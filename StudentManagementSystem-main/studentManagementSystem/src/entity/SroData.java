@@ -9,14 +9,16 @@ package entity;
  * @author Asus
  */
 public class SroData {
+    private int sro_id;
     private String sro_name;
     private int age;
     private String gender;
     private int phone_number;
     private String email;
 
-    public SroData(String sro_name, int age, String gender, int phone_number, String email) {
+    public SroData(String sro_name,int sro_id ,int age, String gender, int phone_number, String email) {
         this.sro_name = sro_name;
+        this.sro_id = sro_id;
         this.age = age;
         this.gender = gender;
         this.phone_number = phone_number;
@@ -63,5 +65,12 @@ public class SroData {
         this.email = email;
     }
     
+    public int getSro_id() {
+        return sro_id;
+    }
+
+    public void setSro_id(int sro_id) {
+        this.sro_id = sro_id;
+    }
     
 }

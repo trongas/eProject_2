@@ -25,7 +25,7 @@
     <children>
         <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
             <children>
-                <BorderPane layoutX="119.0" layoutY="55.0" prefHeight="600.0" prefWidth="1100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <BorderPane layoutX="7.0" prefHeight="600.0" prefWidth="1100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="-7.0" AnchorPane.topAnchor="0.0">
                     <top>
                         <AnchorPane prefHeight="45.0" prefWidth="1100.0" styleClass="semi-top-form" stylesheets="@../assct/dashboardDesign.css" BorderPane.alignment="CENTER">
                             <children>
@@ -129,7 +129,7 @@
                     <center>
                         <AnchorPane prefHeight="846.0" prefWidth="897.0" BorderPane.alignment="CENTER">
                             <children>
-                                <AnchorPane fx:id="home_form" layoutX="90.0" layoutY="138.0" prefHeight="555.0" prefWidth="897.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <AnchorPane fx:id="home_form" prefHeight="555.0" prefWidth="897.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <AnchorPane layoutX="13.0" layoutY="12.0" prefHeight="532.0" prefWidth="872.0" stylesheets="@../assct/dashboardDesign.css">
                                             <styleClass>
@@ -539,9 +539,8 @@
                                           <Font name="Tahoma" size="14.0" />
                                        </font>
                                     </Label>
-<!--                                    <Button fx:id="Sro_UpdateBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="529.0" layoutY="98.0" mnemonicParsing="false" onAction="#SroUpdate" prefHeight="40.0" prefWidth="93.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
-                                    
-                                    <Button fx:id="Sro_DeleteBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="686.0" layoutY="98.0" mnemonicParsing="false" onAction="#SroDelete" prefHeight="40.0" prefWidth="93.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />-->
+                                    <Button fx:id="Sro_UpdateBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="529.0" layoutY="98.0" mnemonicParsing="false" onAction="#SroUpdate" prefHeight="40.0" prefWidth="93.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
+                                    <Button fx:id="Sro_DeleteBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="686.0" layoutY="98.0" mnemonicParsing="false" onAction="#SroDelete" prefHeight="40.0" prefWidth="93.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
                                     <Button fx:id="Sro_ClearBtn" alignment="CENTER" layoutX="686.0" layoutY="12.0" mnemonicParsing="false" onAction="#SroClear" prefHeight="40.0" prefWidth="93.0" styleClass="clear-btn" stylesheets="@../assct/dashboardDesign.css" text="Clear" textAlignment="CENTER" />
                                     <Button fx:id="Sro_AddBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="529.0" layoutY="12.0" mnemonicParsing="false" onAction="#SroAdd" prefHeight="40.0" prefWidth="93.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
                                     <Label layoutX="19.0" layoutY="72.0" text="Email:">
@@ -560,16 +559,17 @@
                                     <String fx:value="shadow" />
                                  </styleClass>
                                  <children>
-                                    <TableView fx:id="Sro_tableView" layoutX="13.0" layoutY="52.0" onMouseClicked="#studentGradesSelect" prefHeight="298.0" prefWidth="858.0" stylesheets="@../assct/dashboardDesign.css">
+                                    <TableView fx:id="Sro_tableView" layoutX="-12.0" layoutY="53.0" onMouseClicked="#SroSelect" prefHeight="298.0" prefWidth="877.0" stylesheets="@../assct/dashboardDesign.css">
                                        <columns>
-                                          <TableColumn fx:id="colSroName" prefWidth="152.00001907348633" text="SRO" />
-                                          <TableColumn fx:id="colSroAge" prefWidth="111.33329772949219" text="Age" />
-                                          <TableColumn fx:id="colSroGender" prefWidth="112.80001831054688" text="Gender" />
-                                          <TableColumn fx:id="colSroPhone" prefWidth="154.4000244140625" text="Phone" />
-                                          <TableColumn fx:id="colSroEmail" prefWidth="331.2000732421875" text="Email" />
+                                          <TableColumn fx:id="colSroID" prefWidth="79.33332538604736" text="ID" />
+                                          <TableColumn fx:id="colSroName" prefWidth="169.99999237060547" text="SRO" />
+                                          <TableColumn fx:id="colSroAge" prefWidth="77.33328247070312" text="Age" />
+                                          <TableColumn fx:id="colSroGender" prefWidth="106.66668701171875" text="Gender" />
+                                          <TableColumn fx:id="colSroPhone" minWidth="0.0" prefWidth="138.66671752929688" text="Phone" />
+                                          <TableColumn fx:id="colSroEmail" prefWidth="300.0" text="Email" />
                                        </columns>
                                     </TableView>
-                                    <TextField fx:id="Sro_Search" layoutX="14.0" layoutY="14.0" onKeyTyped="#studentGradesSearch" prefHeight="30.0" prefWidth="269.0" promptText="Search" styleClass="search" stylesheets="@../assct/dashboardDesign.css" />
+                                    <TextField fx:id="Sro_Search" layoutX="14.0" layoutY="14.0" onAction="#SroSearch" onKeyTyped="#SroSearch" prefHeight="30.0" prefWidth="269.0" promptText="Search" styleClass="search" stylesheets="@../assct/dashboardDesign.css" />
                                     <FontAwesomeIcon glyphName="SEARCH" layoutX="22.0" layoutY="35.0" size="1.5em" />
                                  </children>
                               </AnchorPane>

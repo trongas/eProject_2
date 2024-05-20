@@ -348,6 +348,8 @@ public class DashboardController implements Initializable {
     private ComboBox<?> listSroGender;
     @FXML
     private TableView<SroData> Sro_tableView;
+      @FXML
+    private TableColumn<SroData, Integer> colSroID;
     @FXML
     private TableColumn<SroData, Integer> colSroAge;
     @FXML
@@ -1698,7 +1700,7 @@ public class DashboardController implements Initializable {
             prepare.setString(5, txtSroEmail.getText());
             prepare.executeUpdate();
             showAlert(AlertType.INFORMATION, "Information Message", "Successfully Added!");
-            addSroShowListData();
+            SroShowListData();
             SroClear();
         } catch (Exception e) {
             e.printStackTrace();
@@ -1713,15 +1715,16 @@ public class DashboardController implements Initializable {
         ObservableList<SroData> listSro = FXCollections.observableArrayList();
         
         try(Connection connection = Database.connectDb();
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT sro_name, age, gender, phone, email FROM sro");
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM sro");
                 ResultSet rs = preparedStatement.executeQuery()
             ) {
             while(rs.next()) {
                 SroData sroD = new SroData(
                     rs.getString("sro_name"),
+                    rs.getInt("sro_id"),
                     rs.getInt("age"),
                     rs.getString("gender"),
-                    rs.getInt("phone"),
+                    rs.getInt("phone_number"),
                     rs.getString("email")
                 );
                 
@@ -1733,18 +1736,19 @@ public class DashboardController implements Initializable {
         return listSro;
     }
     
-    private ObservableList<SroData> addSroListD;
+    private ObservableList<SroData> SroListD;
     
-    public void addSroShowListData() {
-        ObservableList<SroData> addSroListD = addSroListData();
+    public void SroShowListData() {
+        SroListD = addSroListData();
         
+        colSroID.setCellValueFactory(new PropertyValueFactory<>("sro_id"));
         colSroName.setCellValueFactory(new PropertyValueFactory<>("sro_name"));
         colSroAge.setCellValueFactory(new PropertyValueFactory<>("age"));
         colSroGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
-        colSroPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        colSroPhone.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
         colSroEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         
-        Sro_tableView.setItems(addSroListD);
+        Sro_tableView.setItems(SroListD);
     }
     
     @FXML
@@ -1768,7 +1772,118 @@ public class DashboardController implements Initializable {
         listSroGender.getSelectionModel().clearSelection();
     }
     
- 
+    @FXML
+    public void SroUpdate() throws SQLException {
+          String updateSroData = "UPDATE sro SET "
+                    + " sro_name = '" + txtSroName.getText()
+                    + "', age = '" + txtSroAge.getText()
+                    + "', email = '" + txtSroEmail.getText()
+                    + "', phone_number = '" + txtSroPhone.getText()
+                    + "', gender = '" + listSroGender.getSelectionModel().getSelectedIndex() + "' WHERE sro_id = ?'" + "'";
+          
+          
+         
+        connect =  Database.connectDb();
+        try {
+            Alert alert;
+            alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Are you sure want to UPDATE SRO " + txtSroName.getText() + "?");
+                Optional<ButtonType> option = alert.showAndWait();
+                
+                if(option.get().equals(ButtonType.OK)) {
+                    statement = connect.createStatement();
+                    statement.executeUpdate(updateSroData);
+                alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Information Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Successfully Updated!");
+                alert.showAndWait();
+                
+                SroShowListData();
+                SroClear();
+                }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    public void SroDelete() throws SQLException {
+        String deleteSroData = "DELETE FROM sro WHERE sro_id = ?";
+        connect = Database.connectDb();
+        
+        try {
+            Alert alert;
+             if (txtSroName.getText().isEmpty()
+                    || txtSroEmail.getText().isEmpty()
+                    || txtSroAge.getText().isEmpty()
+                    || listSroGender.getSelectionModel().getSelectedItem() == null
+                    || txtSroPhone.getText().isEmpty()) {
+                showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all blank fields");
+                alert.showAndWait();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    public void SroSelect() {
+        SroData sroD = Sro_tableView.getSelectionModel().getSelectedItem();
+//        int num = Sro_tableView.getSelectionModel().getSelectedIndex();
+        
+        txtSroName.setText(String.valueOf(sroD.getSro_name()));
+        txtSroEmail.setText(String.valueOf(sroD.getEmail()));
+        txtSroAge.setText(String.valueOf(sroD.getAge()));
+        txtSroPhone.setText(String.valueOf(sroD.getPhone_number()));
+    }
+    
+    @FXML
+    public void handleRowSro() {
+        SroData sroSubject = Sro_tableView.getSelectionModel().getSelectedItem();
+        if (sroSubject != null) {
+            txtSroName.setText(String.valueOf(sroSubject.getSro_name()));
+            txtSroEmail.setText(String.valueOf(sroSubject.getEmail()));
+            txtSroAge.setText(String.valueOf(sroSubject.getAge()));
+            txtSroPhone.setText(String.valueOf(sroSubject.getPhone_number()));
+        }
+    }
+    
+    @FXML
+    public void SroSearch() {
+        FilteredList<SroData> filter = new FilteredList<>(SroListD, e -> true);
+        Sro_Search.textProperty().addListener((Observable, oldValue, newValue) -> {
+            filter.setPredicate(predicateSroData -> {
+                if(newValue  == null || newValue.isEmpty()) {
+                    return true;
+                }
+                
+                String searchKey = newValue.toLowerCase();
+                if(predicateSroData.getSro_name().contains(searchKey)) {
+                    return true;
+                } else if(predicateSroData.getEmail().contains(searchKey)) {
+                    return true;
+                } else if(predicateSroData.getGender().contains(searchKey)) {
+                    return true;
+                } else if(predicateSroData.getGender().contains(searchKey)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        });
+        
+        SortedList<SroData> sortList = new SortedList<>(filter);
+        
+        sortList.comparatorProperty().bind(Sro_tableView.comparatorProperty());
+        Sro_tableView.setItems(sortList);
+    }
 
     private void closeDatabaseResources() {
         try {
@@ -2009,9 +2124,8 @@ public class DashboardController implements Initializable {
             Class_btn.setStyle("-fx-background-color:transparent");
             Subject_btn.setStyle("-fx-background-color:transparent");
             SroGenderList();
-            addSroShowListData();
-//            studentGradesShowListData();
-//            studentGradesSearch();
+            SroShowListData();
+            SroSearch();
         } else if (event.getSource() == Subject_btn) {
             home_form.setVisible(false);
             addStudents_form.setVisible(false);
@@ -2075,7 +2189,7 @@ public class DashboardController implements Initializable {
             studentGradesShowListData();
             
             SroGenderList();
-            addSroShowListData();
+            SroShowListData();
         } catch (SQLException ex) {
             Logger.getLogger(DashboardController.class.getName()).log(Level.SEVERE, null, ex);
         }
