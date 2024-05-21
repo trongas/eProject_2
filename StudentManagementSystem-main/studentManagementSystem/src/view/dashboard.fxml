@@ -533,7 +533,7 @@
                                           <Font name="Tahoma" size="14.0" />
                                        </font>
                                     </Label>
-                                    <TextField fx:id="txtSroPhone" layoutX="300.0" layoutY="67.0" prefHeight="27.0" prefWidth="149.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                    <TextField fx:id="txtSroPhone" layoutX="309.0" layoutY="67.0" prefHeight="27.0" prefWidth="149.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                     <Label layoutX="242.0" layoutY="72.0" text="Phone:">
                                        <font>
                                           <Font name="Tahoma" size="14.0" />
@@ -548,9 +548,15 @@
                                           <Font name="Tahoma" size="14.0" />
                                        </font>
                                     </Label>
-                                    <ComboBox fx:id="listSroGender" layoutX="300.0" layoutY="19.0" onAction="#SroGenderList" prefWidth="150.0" promptText="Choose" />
+                                    <ComboBox fx:id="listSroGender" layoutX="309.0" layoutY="19.0" onAction="#SroGenderList" prefWidth="150.0" promptText="Choose" />
                                     <TextField fx:id="txtSroEmail" layoutX="64.0" layoutY="68.0" />
                                     <TextField fx:id="txtSroAge" layoutX="64.0" layoutY="120.0" />
+                                    <Label layoutX="242.0" layoutY="123.0" text="PeopleID:">
+                                       <font>
+                                          <Font name="Tahoma" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="txtSroPeopleID" layoutX="309.0" layoutY="119.0" prefHeight="27.0" prefWidth="149.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                  </children>
                               </AnchorPane>
                               <AnchorPane layoutX="12.0" layoutY="173.0" prefHeight="403.0" prefWidth="872.0">
@@ -561,12 +567,12 @@
                                  <children>
                                     <TableView fx:id="Sro_tableView" layoutX="-12.0" layoutY="53.0" onMouseClicked="#SroSelect" prefHeight="298.0" prefWidth="877.0" stylesheets="@../assct/dashboardDesign.css">
                                        <columns>
-                                          <TableColumn fx:id="colSroID" prefWidth="79.33332538604736" text="ID" />
-                                          <TableColumn fx:id="colSroName" prefWidth="169.99999237060547" text="SRO" />
-                                          <TableColumn fx:id="colSroAge" prefWidth="77.33328247070312" text="Age" />
+                                          <TableColumn fx:id="colSroName" prefWidth="143.33338165283203" text="SRO" />
+                                          <TableColumn fx:id="colSroAge" prefWidth="104.66658020019531" text="Age" />
                                           <TableColumn fx:id="colSroGender" prefWidth="106.66668701171875" text="Gender" />
-                                          <TableColumn fx:id="colSroPhone" minWidth="0.0" prefWidth="138.66671752929688" text="Phone" />
-                                          <TableColumn fx:id="colSroEmail" prefWidth="300.0" text="Email" />
+                                          <TableColumn fx:id="colSroPhone" minWidth="0.0" prefWidth="123.99996948242188" text="Phone" />
+                                          <TableColumn fx:id="colSroEmail" prefWidth="149.3333740234375" text="Email" />
+                                          <TableColumn fx:id="colSroPeopleID" prefWidth="241.33331298828125" text="Sro_PeopleID" />
                                        </columns>
                                     </TableView>
                                     <TextField fx:id="Sro_Search" layoutX="14.0" layoutY="14.0" onAction="#SroSearch" onKeyTyped="#SroSearch" prefHeight="30.0" prefWidth="269.0" promptText="Search" styleClass="search" stylesheets="@../assct/dashboardDesign.css" />
