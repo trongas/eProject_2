@@ -332,7 +332,8 @@ public class DashboardController implements Initializable {
 
     @FXML
     private Button Sro_UpdateBtn;
-
+    @FXML
+    private TextField txtSroID;
     @FXML
     private TextField txtSroAge;
 
@@ -350,6 +351,8 @@ public class DashboardController implements Initializable {
     private ComboBox<?> listSroGender;
     @FXML
     private TableView<SroData> Sro_tableView;
+    @FXML
+    private TableColumn<SroData, Integer> colSroID;
     @FXML
     private TableColumn<SroData, Integer> colSroAge;
     @FXML
@@ -1728,13 +1731,15 @@ public class DashboardController implements Initializable {
         }
 
     }
+    private ObservableList<SroData> SroListD;
 
     public ObservableList<SroData> SroListData() {
-        ObservableList<SroData> listSro = FXCollections.observableArrayList();
+        SroListD = FXCollections.observableArrayList();
 
         try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM sro"); ResultSet rs = preparedStatement.executeQuery()) {
             while (rs.next()) {
                 SroData sroD = new SroData(
+                        rs.getInt("sro_id"),
                         rs.getString("sro_name"),
                         rs.getInt("age"),
                         rs.getString("gender"),
@@ -1743,19 +1748,18 @@ public class DashboardController implements Initializable {
                         rs.getString("cccd")
                 );
 
-                listSro.add(sroD);
+                SroListD.add(sroD);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return listSro;
+        return SroListD;
     }
-
-    private ObservableList<SroData> SroListD;
 
     public void SroShowListData() {
         SroListD = SroListData();
 
+        colSroID.setCellValueFactory(new PropertyValueFactory<>("sro_id"));
         colSroName.setCellValueFactory(new PropertyValueFactory<>("sro_name"));
         colSroAge.setCellValueFactory(new PropertyValueFactory<>("age"));
         colSroGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
@@ -1790,12 +1794,10 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void SroUpdate() throws SQLException {
-        String currentSroName = txtSroName.getText();
-        String queryCheckName = "SELECT sro_name FROM sro WHERE sro_name = ?";
         connect = Database.connectDb();
         try {
             Alert alert;
-            if (currentSroName.isEmpty()
+            if (txtSroName.getText().isEmpty()
                     || txtSroAge.getText().isEmpty()
                     || txtSroEmail.getText().isEmpty()
                     || txtSroPhone.getText().isEmpty()
@@ -1807,45 +1809,34 @@ public class DashboardController implements Initializable {
                 alert.setContentText("Please fill all blank fields");
                 alert.showAndWait();
             } else {
-                // Kiểm tra nếu sro_name đã thay đổi
-                prepare = connect.prepareStatement(queryCheckName);
-                prepare.setString(1, currentSroName);
-                result = prepare.executeQuery();
+                alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Are you sure want to update?");
+                Optional<ButtonType> option = alert.showAndWait();
 
-                if (!result.next()) {
-                    alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Error Message");
+                if (option.get().equals(ButtonType.OK)) {
+                    String updateSroData = "UPDATE sro SET sro_name = ?, age = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE sro_id = '" + txtSroID.getText() + "'";
+                    String sroAge = txtSroAge.getText();
+                    int age = Integer.parseInt(sroAge);
+
+                    prepare = connect.prepareStatement(updateSroData);
+                    prepare.setString(1, txtSroName.getText());
+                    prepare.setInt(2, age);
+                    prepare.setString(3, (String) listSroGender.getSelectionModel().getSelectedItem());
+                    prepare.setString(4, txtSroPhone.getText());
+                    prepare.setString(5, txtSroEmail.getText());
+                    prepare.setString(6, txtSroPeopleID.getText());
+
+                    prepare.executeUpdate();
+                    alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Message");
                     alert.setHeaderText(null);
-                    alert.setContentText("Cannot change the SRO Name!");
+                    alert.setContentText("Successfully Updated!");
                     alert.showAndWait();
-                } else {
-                    alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle("Confirmation Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Are you sure want to update?");
-                    Optional<ButtonType> option = alert.showAndWait();
 
-                    if (option.get().equals(ButtonType.OK)) {
-                        String updateSroData = "UPDATE sro SET age = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE sro_name = ?";
-
-                        prepare = connect.prepareStatement(updateSroData);
-                        prepare.setInt(1, Integer.parseInt(txtSroAge.getText()));
-                        prepare.setString(2, (String) listSroGender.getSelectionModel().getSelectedItem());
-                        prepare.setString(3, txtSroPhone.getText());
-                        prepare.setString(4, txtSroEmail.getText());
-                        prepare.setString(5, txtSroPeopleID.getText());
-                        prepare.setString(6, currentSroName);
-
-                        prepare.executeUpdate();
-                        alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("Information Message");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Successfully Updated!");
-                        alert.showAndWait();
-
-                        SroShowListData();
-                        SroClear();
-                    }
+                    SroShowListData();
+                    SroClear();
                 }
             }
         } catch (Exception e) {
@@ -1865,7 +1856,7 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void SroDelete() throws SQLException {
-        String deleteSroData = "DELETE FROM sro WHERE sro_name = '" + txtSroName.getText() + "'";
+        String deleteSroData = "DELETE FROM sro WHERE sro_id = '" + txtSroID.getText() + "'";
         connect = Database.connectDb();
 
         try {
@@ -1913,12 +1904,14 @@ public class DashboardController implements Initializable {
     @FXML
     public void SroSelect() {
         SroData sroD = Sro_tableView.getSelectionModel().getSelectedItem();
-
+        if(sroD != null) {
+            txtSroID.setText(String.valueOf(sroD.getSro_id()));
         txtSroName.setText(String.valueOf(sroD.getSro_name()));
         txtSroEmail.setText(String.valueOf(sroD.getEmail()));
         txtSroAge.setText(String.valueOf(sroD.getAge()));
         txtSroPhone.setText(String.valueOf(sroD.getPhone_number()));
         txtSroPeopleID.setText(String.valueOf(sroD.getCccd()));
+        }
     }
 
     @FXML
