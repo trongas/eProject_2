@@ -1,11 +1,13 @@
 package entity;
 
+
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class StudentData {
 
-    private Integer studentNum;
-    private String year;
+     private int studentNum;
+    private String className;
     private String courseName;
     private String firstName;
     private String lastName;
@@ -13,13 +15,17 @@ public class StudentData {
     private Date birth;
     private String status;
     private String image;
-    private Double firstSem;
-    private Double secondSem;
-    private Double finals;
+    private String address;
+    private String phoneNumber;
+    private String email;
+    private String cccd;
 
-    public StudentData(Integer studentNum, String year, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image) {
+    public StudentData() {
+    }
+
+    public StudentData(int studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
         this.studentNum = studentNum;
-        this.year = year;
+        this.className = className;
         this.courseName = courseName;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -27,111 +33,115 @@ public class StudentData {
         this.birth = birth;
         this.status = status;
         this.image = image;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.cccd = cccd;
     }
 
-    public StudentData(Integer studentNum, String year, String courseName, Double firstSem, Double secondSem, Double finals) {
-        this.studentNum = studentNum;
-        this.year = year;
-        this.courseName = courseName;
-        this.firstSem = firstSem;
-        this.secondSem = secondSem;
-        this.finals = finals;
-    }
-
-    public Integer getStudentNum() {
+    public int getStudentNum() {
         return studentNum;
     }
 
-    public String getYear() {
-        return year;
+    public void setStudentNum(int studentNum) {
+        this.studentNum = studentNum;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public String getCourseName() {
         return courseName;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public Date getBirth() {
-        return birth;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public Double getFirstSem() {
-        return firstSem;
-    }
-
-    public Double getSecondSem() {
-        return secondSem;
-    }
-
-    public Double getFinals() {
-        return finals;
-    }
-
-    public void setStudentNum(Integer studentNum) {
-        this.studentNum = studentNum;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getFirstName() {
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getGender() {
+        return gender;
     }
 
     public void setGender(String gender) {
         this.gender = gender;
     }
 
+    public Date getBirth() {
+        return birth;
+    }
+
     public void setBirth(Date birth) {
         this.birth = birth;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
     }
 
+    public String getImage() {
+        return image;
+    }
+
     public void setImage(String image) {
         this.image = image;
     }
 
-    public void setFirstSem(Double firstSem) {
-        this.firstSem = firstSem;
+    public String getAddress() {
+        return address;
     }
 
-    public void setSecondSem(Double secondSem) {
-        this.secondSem = secondSem;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public void setFinals(Double finals) {
-        this.finals = finals;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCccd() {
+        return cccd;
+    }
+
+    public void setCccd(String cccd) {
+        this.cccd = cccd;
+    }
+    
     
 }

@@ -1,14 +1,24 @@
 package entity;
 
+import javafx.scene.control.cell.CheckBoxListCell;
+
 public class SubjectData {
+
     private int subjectId;
     private String subjectName;
-    private String courseName; 
+    private String courseName;
+    private boolean selected;
 
-     public SubjectData(int subjectId, String subjectName, String courseName) {
+    public SubjectData(int subjectId, String subjectName, String courseName) {
         this.subjectId = subjectId;
         this.subjectName = subjectName;
         this.courseName = courseName;
+    }
+
+    public SubjectData(int subjectId, String subjectName) {
+        this.subjectId = subjectId;
+        this.subjectName = subjectName;
+        this.selected = false; // Mặc định không được chọn
     }
 
     public int getSubjectId() {
@@ -35,5 +45,16 @@ public class SubjectData {
         this.courseName = courseName;
     }
 
-    
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    @Override
+    public String toString() {
+        return subjectName;
+    }
 }

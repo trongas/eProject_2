@@ -131,7 +131,6 @@ public class LoginController implements Initializable {
     //LETS NAME THE COMPONENTS ON LOGIN FORM : )
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
     }
 
 }
