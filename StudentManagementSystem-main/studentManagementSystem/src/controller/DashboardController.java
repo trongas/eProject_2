@@ -164,7 +164,10 @@ public class DashboardController implements Initializable {
 
     @FXML
     private TextField addStudents_address;
-
+    
+    @FXML
+    private ComboBox<String> addStudents_class;
+    
     @FXML
     private ComboBox<String> addStudents_course;
 
@@ -179,10 +182,6 @@ public class DashboardController implements Initializable {
 
     @FXML
     private ComboBox<String> addStudents_status;
-
-    @FXML
-    private ComboBox<String> addStudents_class;
-    ;
         
     @FXML
     private ComboBox<String> addStudents_gender;
@@ -634,9 +633,10 @@ public class DashboardController implements Initializable {
                 || addStudents_phone_number.getText().isEmpty()
                 || !addStudents_phone_number.getText().matches(phonePattern)
                 || addStudents_email.getText().isEmpty()
-                || !addStudents_email.getText().matches(emailPattern)
-                || addStudents_cccd.getText().isEmpty()
-                || !addStudents_cccd.getText().matches(cccdPattern)) {
+                || !addStudents_email.getText().matches(emailPattern))
+                //|| addStudents_cccd.getText().isEmpty()
+                //|| !addStudents_cccd.getText().matches(cccdPattern)) 
+        {
 
             String errorMessage = "Please fill all fields correctly:\n";
 
@@ -680,11 +680,12 @@ public class DashboardController implements Initializable {
             } else if (!addStudents_email.getText().matches(emailPattern)) {
                 errorMessage += " - Email is not valid\n";
             }
-            if (addStudents_cccd.getText().isEmpty()) {
-                errorMessage += " - CCCD is empty\n";
-            } else if (!addStudents_cccd.getText().matches(cccdPattern)) {
-                errorMessage += " - CCCD is not valid\n";
-            }
+//            if (addStudents_cccd.getText().isEmpty()) {
+//                errorMessage += " - CCCD is empty\n";
+//            } 
+//            else if (!addStudents_cccd.getText().matches(cccdPattern)) {
+//                errorMessage += " - CCCD is not valid\n";
+//            }
 
             showAlert(Alert.AlertType.ERROR, "Error Message", errorMessage);
             return false;
@@ -1707,10 +1708,10 @@ public class DashboardController implements Initializable {
             return;
         }
         
-         if (isStudentCccdExists(txtTeacherCccd.getText())) {
-                showAlert(AlertType.ERROR, "Error Message", "Student #" + txtTeacherCccd.getText() + " already exists!");
-                return;
-            }
+//         if (isStudentCccdExists(txtTeacherCccd.getText())) {
+//                showAlert(AlertType.ERROR, "Error Message", "Student #" + txtTeacherCccd.getText() + " already exists!");
+//                return;
+//            }
 
         String insertTeacherQuery = "INSERT INTO teacher (teacher_name, age, gender, phone_number, email, cccd) VALUES (?, ?, ?, ?, ?, ?)";
         String linkTeacherSubjectQuery = "INSERT INTO teacher_subject (teacher_id, subject_id) VALUES (?, ?)";
@@ -1930,23 +1931,67 @@ public class DashboardController implements Initializable {
     }
 
     //SRO
+    
+    private boolean validateSroFields() {
+        String emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        String phonePattern = "^[0-9]{10}$";  // Assuming phone number is 10 digits
+        String cccdPattern = "^[0-9]{12}$";  // Assuming CCCD is 12 digits
+        
+        if (txtSroName.getText().isEmpty()
+                    || txtSroEmail.getText().isEmpty()
+                    || !txtSroEmail.getText().matches(emailPattern)
+                    || txtSroAge.getText().isEmpty()
+                    || listSroGender.getSelectionModel().getSelectedItem() == null
+                    || txtSroPhone.getText().isEmpty() 
+                    || !txtSroPhone.getText().matches(phonePattern)
+                    || txtSroPeopleID.getText().isEmpty()
+                    || !txtSroPeopleID.getText().matches(cccdPattern)) {
+                String errorMessage = " Please fill all fields correctly:\n";
+                
+                if(txtSroName.getText().isEmpty()) {
+                    errorMessage += " - Name is empty\n";
+                }
+                if(txtSroEmail.getText().isEmpty()) {
+                    errorMessage += " - Email is empty\n";
+                } else if(!txtSroEmail.getText().matches(emailPattern)) {
+                    errorMessage += " - Email is not valid\n";
+                }
+                if(txtSroAge.getText().isEmpty()) {
+                    errorMessage += " - Age is empty\n";
+                }
+                if(listSroGender.getSelectionModel().getSelectedItem() == null) {
+                    errorMessage += " - Gender is empty\n";
+                }
+                if(txtSroPhone.getText().isEmpty()) {
+                    errorMessage += " - Phone is empty\n";
+                } else if(!txtSroPhone.getText().matches(phonePattern)) {
+                    errorMessage += " - Phone is not valid\n";
+                }
+                if(txtSroPeopleID.getText().isEmpty()) {
+                    errorMessage += " - CCCD is empty\n";
+                } else if(!txtSroPeopleID.getText().matches(cccdPattern)) {
+                    errorMessage += " - CCCD is not valid\n";
+                }
+                
+                showAlert(AlertType.ERROR, "Error Massage", errorMessage);
+                return false;
+        } 
+        return true; 
+    }
+    
+    
   @FXML
     public void SroAdd() throws SQLException {
         String insertSroData = "INSERT INTO sro " + "(sro_name, age, gender, phone_number, email, cccd)" + "VALUES(?, ?, ?, ?, ?, ?)";
         connect = Database.connectDb();
 
         try {
-            if (txtSroName.getText().isEmpty()
-                    || txtSroEmail.getText().isEmpty()
-                    || txtSroAge.getText().isEmpty()
-                    || listSroGender.getSelectionModel().getSelectedItem() == null
-                    || txtSroPhone.getText().isEmpty()
-                    || txtSroPeopleID.getText().isEmpty()) {
-                showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
+            if(!validateSroFields()) {
+//                showAlert(AlertType.ERROR, "Error Massage", "Please fill all blank fields");
+                return;
             } else {
 
                 String checkData = "SELECT * From sro WHERE cccd = '" + txtSroPeopleID.getText() + "'";
-
                 statement = connect.createStatement();
                 result = statement.executeQuery(checkData);
 
@@ -1980,6 +2025,8 @@ public class DashboardController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(AlertType.ERROR, "Error Message", "An error occurred while adding SRO!");
+        } finally {
+            closeDatabaseResources();
         }
     }
 
@@ -2169,6 +2216,7 @@ public class DashboardController implements Initializable {
         txtSroAge.setText(String.valueOf(sroD.getAge()));
         txtSroPhone.setText(String.valueOf(sroD.getPhone_number()));
         txtSroPeopleID.setText(String.valueOf(sroD.getCccd()));
+        listSroGender.setValue(sroD.getGender());
         }
     }
 

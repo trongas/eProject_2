@@ -78,9 +78,9 @@
                                                 <FontAwesomeIcon fill="WHITE" glyphName="HOME" size="1.5em" />
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="addStudents_btn" layoutX="12.0" layoutY="246.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="35.0" prefWidth="180.0" styleClass="nav-btn" stylesheets="@../assct/dashboardDesign.css" text="Add Students">
+                                        <Button fx:id="addStudents_btn" layoutX="12.0" layoutY="246.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="35.0" prefWidth="180.0" styleClass="nav-btn" stylesheets="@../assct/dashboardDesign.css" text="Students">
                                             <graphic>
-                                                <FontAwesomeIcon fill="WHITE" glyphName="PLUS_CIRCLE" size="1.5em" />
+                                                <FontAwesomeIcon fill="WHITE" glyphName="PLUS_CIRCLE" size="1.5em" text="" />
                                             </graphic>
                                         </Button>
                                         <Button fx:id="availableCourse_btn" layoutX="12.0" layoutY="281.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="35.0" prefWidth="180.0" styleClass="nav-btn" stylesheets="@../assct/dashboardDesign.css" text="Available Courses">
@@ -310,7 +310,7 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="addStudents_studentNum" layoutX="109.0" layoutY="276.0" prefHeight="25.0" prefWidth="120.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <Label layoutX="53.0" layoutY="465.0" text="Course:">
+                                                <Label layoutX="53.0" layoutY="458.0" text="Course:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -385,7 +385,7 @@
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
                                                 </Label>
-                                                <Label layoutX="59.0" layoutY="496.0" text="Class:">
+                                                <Label layoutX="58.0" layoutY="494.0" text="Class:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -431,8 +431,8 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="availableCourse_duration" layoutX="102.0" layoutY="196.0" prefHeight="25.0" prefWidth="155.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <TextField fx:id="availableCourse_id" layoutX="101.0" layoutY="15.0" prefHeight="25.0" prefWidth="155.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <Label layoutX="17.0" layoutY="14.0" text="Course">
+                                                <TextField fx:id="availableCourse_id" layoutX="185.0" layoutY="15.0" prefHeight="25.0" prefWidth="71.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" visible="false" />
+                                                <Label layoutX="106.0" layoutY="14.0" text="Course">
                                                     <font>
                                                         <Font name="System Bold" size="18.0" />
                                                     </font>
@@ -445,13 +445,13 @@
                                                 <String fx:value="white-bg" />
                                             </styleClass>
                                             <children>
-                                                <TableView fx:id="availableCourse_tableView" layoutX="11.0" layoutY="13.0" onMouseClicked="#availableCourseSelect" prefHeight="490.0" prefWidth="557.0" stylesheets="@../assct/dashboardDesign.css">
+                                                <TableView fx:id="availableCourse_tableView" layoutX="11.0" layoutY="13.0" onMouseClicked="#availableCourseSelect" prefHeight="490.0" prefWidth="569.0" stylesheets="@../assct/dashboardDesign.css">
                                                     <columns>
                                                         <TableColumn fx:id="availableCourse_col_id" minWidth="0.0" prefWidth="0.0" text="Id" visible="false" />
                                                         <TableColumn fx:id="availableCourse_col_course" prefWidth="140.79998779296875" text="Course" />
                                                         <TableColumn fx:id="availableCourse_col_description" prefWidth="147.20001220703125" text="Description" />
-                                                        <TableColumn fx:id="availableCourse_col_degree" prefWidth="163.199951171875" text="Degree" />
-                                                        <TableColumn fx:id="availableCourse_col_duration" prefWidth="179.2000732421875" text="Duration" />
+                                                        <TableColumn fx:id="availableCourse_col_degree" prefWidth="130.0" text="Degree" />
+                                                        <TableColumn fx:id="availableCourse_col_duration" prefWidth="214.00006103515625" text="Duration" />
                                                     </columns>
                                                 </TableView>
                                             </children>
@@ -547,7 +547,7 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="txtSroPeopleID" layoutX="349.0" layoutY="119.0" prefHeight="26.0" prefWidth="150.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <Label layoutX="276.0" layoutY="123.0" text="PeopleID:">
+                                                <Label layoutX="282.0" layoutY="123.0" text="Cccd:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -593,7 +593,7 @@
                                                         <TableColumn fx:id="colSroGender" prefWidth="122.40008544921875" text="Gender" />
                                                         <TableColumn fx:id="colSroPhone" minWidth="0.0" prefWidth="116.0" text="Phone" />
                                                         <TableColumn fx:id="colSroEmail" prefWidth="132.79998779296875" text="Email" />
-                                                        <TableColumn fx:id="colSroPeopleID" editable="false" prefWidth="166.39990234375" text="People ID" />
+                                                        <TableColumn fx:id="colSroPeopleID" editable="false" prefWidth="166.39990234375" text="Cccd" />
                                                     </columns>
                                                 </TableView>
                                                 <TextField fx:id="Sro_Search" layoutX="14.0" layoutY="14.0" onAction="#SroSearch" onKeyTyped="#SroSearch" prefHeight="30.0" prefWidth="269.0" promptText="Search" styleClass="search" stylesheets="@../assct/dashboardDesign.css" />
