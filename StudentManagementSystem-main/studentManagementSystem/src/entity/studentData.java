@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class StudentData {
 
-     private int studentNum;
+    private String studentNum;
     private String className;
     private String courseName;
     private String firstName;
@@ -23,7 +23,7 @@ public class StudentData {
     public StudentData() {
     }
 
-    public StudentData(int studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
+    public StudentData(String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
         this.studentNum = studentNum;
         this.className = className;
         this.courseName = courseName;
@@ -39,11 +39,11 @@ public class StudentData {
         this.cccd = cccd;
     }
 
-    public int getStudentNum() {
+    public String getStudentNum() {
         return studentNum;
     }
 
-    public void setStudentNum(int studentNum) {
+    public void setStudentNum(String studentNum) {
         this.studentNum = studentNum;
     }
 
