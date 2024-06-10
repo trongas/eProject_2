@@ -20,7 +20,6 @@ public class StudentManagementSystem extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
         
         Scene scene = new Scene(root);
-
         root.setOnMousePressed((MouseEvent event) ->{
             x = event.getSceneX();
             y = event.getSceneY();

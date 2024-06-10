@@ -1,12 +1,12 @@
 package entity;
 
-
 import java.sql.Date;
 import java.time.LocalDate;
 
 public class StudentData {
 
-     private int studentNum;
+    private int studentId;
+    private String studentNum;
     private String className;
     private String courseName;
     private String firstName;
@@ -19,11 +19,18 @@ public class StudentData {
     private String phoneNumber;
     private String email;
     private String cccd;
-
+    
+    private String fullName;
     public StudentData() {
     }
 
-    public StudentData(int studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
+    public StudentData(int studentId, String fullName) {
+        this.studentId = studentId;
+        this.fullName = fullName;
+    }
+
+    
+    public StudentData(String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
         this.studentNum = studentNum;
         this.className = className;
         this.courseName = courseName;
@@ -39,11 +46,35 @@ public class StudentData {
         this.cccd = cccd;
     }
 
-    public int getStudentNum() {
+    public StudentData(int studentId, String firstName, String lastName) {
+        this.studentId = studentId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public int getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    
+
+    public String getStudentNum() {
         return studentNum;
     }
 
-    public void setStudentNum(int studentNum) {
+    public void setStudentNum(String studentNum) {
         this.studentNum = studentNum;
     }
 
@@ -142,6 +173,5 @@ public class StudentData {
     public void setCccd(String cccd) {
         this.cccd = cccd;
     }
-    
-    
+
 }

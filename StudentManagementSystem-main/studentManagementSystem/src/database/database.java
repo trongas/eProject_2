@@ -26,7 +26,7 @@ public class Database {
             e.printStackTrace();
         } catch (SQLException e) {
             // Xử lý ngoại lệ khi không thể kết nối đến cơ sở dữ liệu
-            System.err.println("Không thể kết nối đến cơ sở dữ liệu.");
+            System.err.println("Khong the ket noi den Database.");
             e.printStackTrace();
         }
         // Trả về null nếu có lỗi xảy ra
