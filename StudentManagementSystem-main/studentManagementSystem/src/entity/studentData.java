@@ -19,8 +19,9 @@ public class StudentData {
     private String phoneNumber;
     private String email;
     private String cccd;
-    
+
     private String fullName;
+
     public StudentData() {
     }
 
@@ -29,7 +30,6 @@ public class StudentData {
         this.fullName = fullName;
     }
 
-    
     public StudentData(String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
         this.studentNum = studentNum;
         this.className = className;
@@ -52,6 +52,22 @@ public class StudentData {
         this.lastName = lastName;
     }
 
+    public StudentData(int studentId, String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String address, String phoneNumber, String email, String cccd, String status) {
+        this.studentId = studentId;
+        this.studentNum = studentNum;
+        this.className = className;
+        this.courseName = courseName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.birth = birth;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.cccd = cccd;
+        this.status = status;
+    }
+
     public int getStudentId() {
         return studentId;
     }
@@ -67,8 +83,6 @@ public class StudentData {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
-    
 
     public String getStudentNum() {
         return studentNum;
