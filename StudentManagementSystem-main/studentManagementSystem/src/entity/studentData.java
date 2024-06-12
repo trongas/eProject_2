@@ -1,11 +1,11 @@
 package entity;
 
-
 import java.sql.Date;
 import java.time.LocalDate;
 
 public class StudentData {
 
+    private int studentId;
     private String studentNum;
     private String className;
     private String courseName;
@@ -20,7 +20,14 @@ public class StudentData {
     private String email;
     private String cccd;
 
+    private String fullName;
+
     public StudentData() {
+    }
+
+    public StudentData(int studentId, String fullName) {
+        this.studentId = studentId;
+        this.fullName = fullName;
     }
 
     public StudentData(String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String status, String image, String address, String phoneNumber, String email, String cccd) {
@@ -37,6 +44,44 @@ public class StudentData {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.cccd = cccd;
+    }
+
+    public StudentData(int studentId, String firstName, String lastName) {
+        this.studentId = studentId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public StudentData(int studentId, String studentNum, String className, String courseName, String firstName, String lastName, String gender, Date birth, String address, String phoneNumber, String email, String cccd, String status) {
+        this.studentId = studentId;
+        this.studentNum = studentNum;
+        this.className = className;
+        this.courseName = courseName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.birth = birth;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.cccd = cccd;
+        this.status = status;
+    }
+
+    public int getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getStudentNum() {
@@ -142,6 +187,5 @@ public class StudentData {
     public void setCccd(String cccd) {
         this.cccd = cccd;
     }
-    
-    
+
 }

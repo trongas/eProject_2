@@ -24,6 +24,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import database.Database;
 import entity.GetData;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class LoginController implements Initializable {
 
@@ -35,10 +37,12 @@ public class LoginController implements Initializable {
 
     @FXML
     private PasswordField password;
-
+    @FXML
+    private TextField passwordVisible;
     @FXML
     private Button loginBtn;
-
+    @FXML
+    private Button showPasswordBtn;
     @FXML
     private Button close;
 
@@ -124,6 +128,31 @@ public class LoginController implements Initializable {
     }
 
     @FXML
+    public void showPassword() {
+
+        showPasswordBtn.setOnAction(e -> {
+            if (passwordVisible.isVisible()) {
+                passwordVisible.setVisible(false);
+                password.setVisible(true);
+                password.setText(passwordVisible.getText());
+
+                // Hide password again after 2 seconds
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(event -> {
+                    password.setVisible(false);
+                    passwordVisible.setVisible(true);
+                    passwordVisible.setText(password.getText());
+                });
+                pause.play();
+            } else {
+                passwordVisible.setVisible(true);
+                password.setVisible(false);
+                passwordVisible.setText(password.getText());
+            }
+        });
+    }
+
+    @FXML
     public void close() {
         System.exit(0);
     }
@@ -131,7 +160,7 @@ public class LoginController implements Initializable {
     //LETS NAME THE COMPONENTS ON LOGIN FORM : )
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+
     }
 
 }

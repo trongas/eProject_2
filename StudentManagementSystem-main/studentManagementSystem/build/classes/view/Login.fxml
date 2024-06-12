@@ -11,35 +11,42 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="409.0" prefWidth="591.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
 
-   <children>
-      <AnchorPane fx:id="main_form" prefHeight="436.0" prefWidth="651.0">
-         <children>
-            <AnchorPane prefHeight="410.0" prefWidth="298.0" styleClass="left-form" stylesheets="@../assct/loginDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <FontAwesomeIcon fill="WHITE" glyphName="GRADUATION_CAP" layoutX="72.0" layoutY="186.0" size="10em" text="" />
-                  <Label layoutX="19.0" layoutY="205.0" text="Student Management System" textFill="WHITE">
-                     <font>
-                        <Font name="Tahoma" size="20.0" />
-                     </font>
-                  </Label>
-               </children>
-            </AnchorPane>
-            <AnchorPane layoutX="299.0" layoutY="-64.8" prefHeight="410.0" prefWidth="291.0" styleClass="right-form" stylesheets="@../assct/loginDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <FontAwesomeIcon glyphName="USER" layoutX="125.0" layoutY="98.0" size="5em" />
-                  <Label layoutX="69.0" layoutY="107.0" text="Welcome ADMIN!">
-                     <font>
-                        <Font name="Tahoma Bold" size="18.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="username" layoutX="39.0" layoutY="175.0" onAction="#loginAdmin" prefHeight="30.0" prefWidth="220.0" promptText=" Username" styleClass="textfield" stylesheets="@../assct/loginDesign.css" />
-                  <PasswordField fx:id="password" layoutX="39.0" layoutY="218.0" onAction="#loginAdmin" prefHeight="30.0" prefWidth="220.0" promptText=" Password" styleClass="textfield" stylesheets="@../assct/loginDesign.css" />
-                  <Button fx:id="loginBtn" alignment="CENTER" layoutX="39.0" layoutY="287.0" mnemonicParsing="false" onAction="#loginAdmin" prefHeight="40.0" prefWidth="220.0" styleClass="login-btn" stylesheets="@../assct/loginDesign.css" text="Login" textAlignment="CENTER" />
-                  <Button fx:id="close" layoutX="231.0" layoutY="6.0" mnemonicParsing="false" onAction="#close" prefHeight="24.0" prefWidth="47.0" styleClass="close" stylesheets="@../assct/loginDesign.css" AnchorPane.rightAnchor="6.0" />
-                  <FontAwesomeIcon glyphName="CLOSE" layoutX="254.0" layoutY="30.0" size="1.2em" />
-               </children>
-            </AnchorPane>
-         </children>
-      </AnchorPane>
-   </children>
+    <children>
+        <AnchorPane fx:id="main_form" prefHeight="436.0" prefWidth="651.0">
+            <children>
+                <AnchorPane prefHeight="410.0" prefWidth="298.0" styleClass="left-form" stylesheets="@../assct/loginDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <FontAwesomeIcon fill="WHITE" glyphName="GRADUATION_CAP" layoutX="72.0" layoutY="186.0" size="10em" text="" />
+                        <Label layoutX="19.0" layoutY="205.0" text="Student Management System" textFill="WHITE">
+                            <font>
+                                <Font name="Tahoma" size="20.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutX="299.0" layoutY="-64.8" prefHeight="410.0" prefWidth="291.0" styleClass="right-form" stylesheets="@../assct/loginDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <FontAwesomeIcon glyphName="USER" layoutX="125.0" layoutY="98.0" size="5em" />
+                        <Label layoutX="104.0" layoutY="113.0" text="Welcome!">
+                            <font>
+                                <Font name="Tahoma Bold" size="18.0" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="username" layoutX="39.0" layoutY="175.0" onAction="#loginAdmin" prefHeight="30.0" prefWidth="220.0" promptText=" Username" styleClass="textfield" stylesheets="@../assct/loginDesign.css" />
+                        <PasswordField fx:id="password" layoutX="39.0" layoutY="218.0" onAction="#loginAdmin" prefHeight="30.0" prefWidth="220.0" promptText=" Password" styleClass="textfield" stylesheets="@../assct/loginDesign.css" />
+                        <TextField fx:id="passwordVisible" layoutX="39.0" layoutY="218.0" prefHeight="30.0" prefWidth="220.0" styleClass="textfield" stylesheets="@../assct/loginDesign.css" visible="false" />
+
+                        <Button fx:id="loginBtn" alignment="CENTER" layoutX="39.0" layoutY="287.0" mnemonicParsing="false" onAction="#loginAdmin" prefHeight="40.0" prefWidth="220.0" styleClass="login-btn" stylesheets="@../assct/loginDesign.css" text="Login" textAlignment="CENTER" />
+                        <Button fx:id="close" layoutX="235.0" layoutY="6.0" mnemonicParsing="false" onAction="#close" prefHeight="24.0" prefWidth="47.0" styleClass="close" stylesheets="@../assct/loginDesign.css" AnchorPane.rightAnchor="9.0" />
+                        <FontAwesomeIcon glyphName="CLOSE" layoutX="253.0" layoutY="30.0" size="1.2em" text="" />
+                        <Button fx:id="showPasswordBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="230.0" layoutY="220.0" mnemonicParsing="false" onAction="#showPassword" prefHeight="10.0" prefWidth="5.0" stylesheets="@../assct/loginDesign.css" textFill="WHITE">
+                            <graphic>
+                                <FontAwesomeIcon glyphName="EYE" text="" />
+                            </graphic>
+                        </Button>
+                    </children>
+                </AnchorPane>
+            </children>
+        </AnchorPane>
+    </children>
 </StackPane>

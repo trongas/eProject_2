@@ -5,11 +5,9 @@
         <group>
             <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/StudentGrade.java</file>
             <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/view/Dashboard.fxml</file>
-            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/TeacherData.java</file>
             <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/StudentData.java</file>
-            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/SubjectData.java</file>
-            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/entity/ClassData.java</file>
-            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/controller/CSVExporter.java</file>
+            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/controller/LoginController.java</file>
+            <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/view/Login.fxml</file>
             <file>file:/D:/Aptech/Semester%20II/Project/eProject_2/StudentManagementSystem-main/studentManagementSystem/src/controller/DashboardController.java</file>
         </group>
     </open-files>
