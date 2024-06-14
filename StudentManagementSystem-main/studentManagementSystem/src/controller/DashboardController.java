@@ -1267,10 +1267,22 @@ public class DashboardController implements Initializable {
     @FXML
     public void availableCourseDelete() {
         try {
-            int courseId = Integer.parseInt(availableCourse_id.getText());
+            String courseIdText = availableCourse_id.getText();
+            if (courseIdText == null || courseIdText.isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Please select a course to delete.");
+                return;
+            }
+
+            int courseId;
+            try {
+                courseId = Integer.parseInt(courseIdText);
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Invalid course ID.");
+                return;
+            }
 
             if (courseId <= 0) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Please select a course to delete.");
+                showAlert(Alert.AlertType.ERROR, "Error", "Please select a valid course to delete.");
                 return;
             }
 
@@ -1281,34 +1293,55 @@ public class DashboardController implements Initializable {
 
             Optional<ButtonType> result = confirmationAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                connect = Database.connectDb();
-                // Delete course-subject relationships first
-                String deleteCourseSubjectQuery = "DELETE FROM course_subject WHERE course_id = ?";
-                prepare = connect.prepareStatement(deleteCourseSubjectQuery);
-                prepare.setInt(1, courseId);
-                prepare.executeUpdate();
+                try (Connection connect = Database.connectDb()) {
+                    connect.setAutoCommit(false); // Start transaction
 
-                // Now delete the course
-                String deleteCourseQuery = "DELETE FROM course WHERE course_id = ?";
-                prepare = connect.prepareStatement(deleteCourseQuery);
-                prepare.setInt(1, courseId);
-                prepare.executeUpdate();
+                    // Step 1: Delete students enrolled in the class
+                    String deleteStudentsQuery = "DELETE FROM student WHERE class_id IN (SELECT class_id FROM class WHERE course_id =?)";
+                    prepare = connect.prepareStatement(deleteStudentsQuery);
+                    prepare.setInt(1, courseId);
+                    prepare.executeUpdate();
+                    // Step 2: Update classes to set course_id to NULL
+                    String deleteClassesQuery = "DELETE FROM class WHERE course_id =?";
+                    prepare = connect.prepareStatement(deleteClassesQuery);
+                    prepare.setInt(1, courseId);
+                    prepare.executeUpdate();
+                    // Step 3: Delete from student_grades table
+                    String deleteStudentGradesQuery = "DELETE FROM student_grades WHERE course_subject_id IN (SELECT course_subject_id FROM course_subject WHERE course_id = ?)";
+                    try (PreparedStatement prepare = connect.prepareStatement(deleteStudentGradesQuery)) {
+                        prepare.setInt(1, courseId);
+                        prepare.executeUpdate();
+                    }
+                    // Step 4: Delete from course_subject table
+                    String deleteCourseSubjectQuery = "DELETE FROM course_subject WHERE course_id = ?";
+                    try (PreparedStatement prepare = connect.prepareStatement(deleteCourseSubjectQuery)) {
+                        prepare.setInt(1, courseId);
+                        prepare.executeUpdate();
+                    }
 
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Course deleted successfully!");
+                    // Step 4: Delete from course table
+                    String deleteCourseQuery = "DELETE FROM course WHERE course_id = ?";
+                    try (PreparedStatement prepare = connect.prepareStatement(deleteCourseQuery)) {
+                        prepare.setInt(1, courseId);
+                        prepare.executeUpdate();
+                    }
 
-                // Refresh the table view after successful deletion
-                availableCourseShowListData();
-                // Clear the text fields
-                availableCourseClear();
+                    connect.commit(); // Commit transaction
+
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Course deleted successfully!");
+
+                    // Refresh the table view after successful deletion
+                    availableCourseShowListData();
+                    // Clear the text fields
+                    availableCourseClear();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+                }
             }
-        } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Invalid course ID.");
-            e.printStackTrace();
-        } finally {
-            closeDatabaseResources();
+            showAlert(Alert.AlertType.ERROR, "Error", "An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -1529,14 +1562,21 @@ public class DashboardController implements Initializable {
         Optional<ButtonType> option = confirmationAlert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {
+            String deleteTeacherSubjectQuery = "DELETE FROM teacher_subject WHERE subject_id = ?";
             String deleteStudentGradesQuery = "DELETE FROM student_grades WHERE course_subject_id IN (SELECT course_subject_id FROM course_subject WHERE subject_id = ?)";
             String deleteCourseSubjectQuery = "DELETE FROM course_subject WHERE subject_id = ?";
             String deleteSubjectQuery = "DELETE FROM subject WHERE subject_id = ?";
 
             try {
                 connect = Database.connectDb();
+                connect.setAutoCommit(false); // Start transaction
 
-                // Delete from student_grades table first
+                // Delete from teacher_subject table
+                prepare = connect.prepareStatement(deleteTeacherSubjectQuery);
+                prepare.setInt(1, Integer.parseInt(subjectId));
+                prepare.executeUpdate();
+
+                // Delete from student_grades table
                 prepare = connect.prepareStatement(deleteStudentGradesQuery);
                 prepare.setInt(1, Integer.parseInt(subjectId));
                 prepare.executeUpdate();
@@ -1551,15 +1591,31 @@ public class DashboardController implements Initializable {
                 prepare.setInt(1, Integer.parseInt(subjectId));
                 prepare.executeUpdate();
 
+                connect.commit(); // Commit transaction
+
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Subject deleted successfully!");
                 subjectShowListData();
                 clearSubject();
 
             } catch (SQLException e) {
+                if (connect != null) {
+                    try {
+                        connect.rollback(); // Rollback transaction in case of error
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while deleting the subject. Please try again.");
             } finally {
-                closeDatabaseResources();
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    closeDatabaseResources();
+                }
             }
         }
     }
@@ -1869,27 +1925,53 @@ public class DashboardController implements Initializable {
         Optional<ButtonType> option = confirmationAlert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {
+            String updateClassesQuery = "UPDATE class SET teacher_id = NULL WHERE teacher_id = ?";
             String deleteTeacherSubjectQuery = "DELETE FROM teacher_subject WHERE teacher_id = ?";
             String deleteTeacherQuery = "DELETE FROM teacher WHERE teacher_id = ?";
 
             try {
                 connect = Database.connectDb();
+                connect.setAutoCommit(false); // Start transaction
+
+                // Update classes to set teacher_id to NULL
+                prepare = connect.prepareStatement(updateClassesQuery);
+                prepare.setInt(1, teacherId);
+                prepare.executeUpdate();
+
+                // Delete from teacher_subject table
                 prepare = connect.prepareStatement(deleteTeacherSubjectQuery);
                 prepare.setInt(1, teacherId);
                 prepare.executeUpdate();
 
+                // Delete from teacher table
                 prepare = connect.prepareStatement(deleteTeacherQuery);
                 prepare.setInt(1, teacherId);
                 prepare.executeUpdate();
 
+                connect.commit(); // Commit transaction
+
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Teacher deleted successfully!");
                 loadTeachers();
                 clearFields();
-
             } catch (SQLException e) {
+                if (connect != null) {
+                    try {
+                        connect.rollback(); // Rollback transaction in case of error
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
             } finally {
-                closeDatabaseResources();
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    closeDatabaseResources();
+                }
             }
         }
     }
@@ -2132,48 +2214,75 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void SroDelete() throws SQLException {
-        String deleteSroData = "DELETE FROM sro WHERE sro_id = '" + txtSroID.getText() + "'";
-        connect = Database.connectDb();
+        String sroId = txtSroID.getText();
+        if (sroId == null || sroId.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please provide the SRO ID.");
+            return;
+        }
 
-        try {
-            Alert alert;
-            if (txtSroName.getText().isEmpty()
-                    || txtSroEmail.getText().isEmpty()
-                    || txtSroAge.getText().isEmpty()
-                    || listSroGender.getSelectionModel().getSelectedItem() == null
-                    || txtSroPhone.getText().isEmpty()
-                    || txtSroPeopleID.getText().isEmpty()) {
-                showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
-            } else {
-                alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure want to delete ?");
-                Optional<ButtonType> option = alert.showAndWait();
+        Alert alert;
+        if (txtSroName.getText().isEmpty()
+                || txtSroEmail.getText().isEmpty()
+                || txtSroAge.getText().isEmpty()
+                || listSroGender.getSelectionModel().getSelectedItem() == null
+                || txtSroPhone.getText().isEmpty()
+                || txtSroPeopleID.getText().isEmpty()) {
+            showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
+            return;
+        }
 
-                if (option.get().equals(ButtonType.OK)) {
-                    statement = connect.createStatement();
-                    statement.executeUpdate(deleteSroData);
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Deleted!");
-                    alert.showAndWait();
+        alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Message");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete?");
+        Optional<ButtonType> option = alert.showAndWait();
 
-                    // TO UPDATE THE TABLEVIEW
-                    SroShowListData();
-                    // TO CLEAR THE FIELDS
-                    SroClear();
+        if (option.isPresent() && option.get() == ButtonType.OK) {
+            String updateClassQuery = "UPDATE class SET sro_id = NULL WHERE sro_id = ?";
+            String deleteSroData = "DELETE FROM sro WHERE sro_id = ?";
+
+            try {
+                connect = Database.connectDb();
+                connect.setAutoCommit(false); // Start transaction
+
+                // Update classes to set sro_id to NULL
+                try (PreparedStatement updateClassStmt = connect.prepareStatement(updateClassQuery)) {
+                    updateClassStmt.setInt(1, Integer.parseInt(sroId));
+                    updateClassStmt.executeUpdate();
                 }
 
+                // Delete the SRO
+                try (PreparedStatement deleteSroStmt = connect.prepareStatement(deleteSroData)) {
+                    deleteSroStmt.setInt(1, Integer.parseInt(sroId));
+                    deleteSroStmt.executeUpdate();
+                }
+
+                connect.commit(); // Commit transaction
+
+                showAlert(AlertType.INFORMATION, "Information Message", "Successfully Deleted!");
+                SroShowListData(); // Update the TableView
+                SroClear(); // Clear the fields
+
+            } catch (SQLException e) {
+                if (connect != null) {
+                    try {
+                        connect.rollback(); // Rollback transaction in case of error
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+                showAlert(AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+            } finally {
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    closeDatabaseResources();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -2187,6 +2296,8 @@ public class DashboardController implements Initializable {
             txtSroAge.setText(String.valueOf(sroD.getAge()));
             txtSroPhone.setText(String.valueOf(sroD.getPhone_number()));
             txtSroPeopleID.setText(String.valueOf(sroD.getCccd()));
+            listSroGender.setValue(sroD.getGender());
+
         }
     }
 
@@ -2195,8 +2306,9 @@ public class DashboardController implements Initializable {
         SroData sroSubject = Sro_tableView.getSelectionModel().getSelectedItem();
         if (sroSubject != null) {
             txtSroName.setText(String.valueOf(sroSubject.getSro_name()));
-            txtSroEmail.setText(String.valueOf(sroSubject.getEmail()));
             txtSroAge.setText(String.valueOf(sroSubject.getAge()));
+            listSroGender.setValue(sroSubject.getGender());
+            txtSroEmail.setText(String.valueOf(sroSubject.getEmail()));
             txtSroPhone.setText(String.valueOf(sroSubject.getPhone_number()));
             txtSroPeopleID.setText(String.valueOf(sroSubject.getCccd()));
         }
@@ -2387,22 +2499,64 @@ public class DashboardController implements Initializable {
         Optional<ButtonType> option = confirmationAlert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {
+            String deleteStudentsQuery = "DELETE s FROM student s JOIN class c ON s.class_id = c.class_id WHERE c.course_id = ?";
+            String updateSroQuery = "UPDATE class  WHERE class_id = ?";
+            String updateCourseQuery = "UPDATE course  WHERE class_id = ?";
+            String updateTeacherQuery = "UPDATE class  WHERE class_id = ?";
             String deleteClassQuery = "DELETE FROM class WHERE class_id = ?";
 
             try {
                 connect = Database.connectDb();
+                connect.setAutoCommit(false); // Start transaction
+
+                // Update students to set class_id to NULL or move them to a placeholder class
+                prepare = connect.prepareStatement(deleteStudentsQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Update SRO to set sro_id to NULL
+                prepare = connect.prepareStatement(updateSroQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                prepare = connect.prepareStatement(updateCourseQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Update Teacher to set teacher_id to NULL
+                prepare = connect.prepareStatement(updateTeacherQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Delete the class
                 prepare = connect.prepareStatement(deleteClassQuery);
                 prepare.setInt(1, classId);
                 prepare.executeUpdate();
+
+                connect.commit(); // Commit transaction
 
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Class deleted successfully!");
                 loadClasses();
                 clearFields();
             } catch (SQLException e) {
+                if (connect != null) {
+                    try {
+                        connect.rollback(); // Rollback transaction in case of error
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
             } finally {
-                closeDatabaseResources();
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    closeDatabaseResources();
+                }
             }
         }
     }
@@ -2634,7 +2788,6 @@ public class DashboardController implements Initializable {
                 double rateValue = Double.parseDouble(fommatedRate);
                 String status = resultSet.getString("status");
 
-               
                 StudentGrade grade = new StudentGrade(
                         resultSet.getInt("grade_id"),
                         resultSet.getString("student_name"),
@@ -2650,7 +2803,7 @@ public class DashboardController implements Initializable {
                 totalMaxRate += rateValue;
             }
 
-            double percentage = totalMaxRate == 0.0 ? 0.0 :totalWeightedScore / totalMaxRate;
+            double percentage = totalMaxRate == 0.0 ? 0.0 : totalWeightedScore / totalMaxRate;
             // Làm tròn đến 0,05 gần nhất
             double roundedPercentage = Math.round(percentage / 0.05) * 0.05;
             studentGrade_totalGrade.setText(String.format("%.2f", roundedPercentage));
@@ -3133,10 +3286,8 @@ public class DashboardController implements Initializable {
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
             Subject_btn.setStyle("-fx-background-color:transparent");
-
             addStudentsShowListData();
             addStudentsSearch();
-
         } else if (event.getSource() == availableCourse_btn) {
             home_form.setVisible(false);
             addStudents_form.setVisible(false);
@@ -3299,10 +3450,12 @@ public class DashboardController implements Initializable {
             homeDisplayTotalEnrolledChart();
 
             // TO SHOW IMMIDIATELY WHEN WE PROCEED TO DASHBOARD APPLICATION FORM
+            
             //student
-            addStudentsShowListData();
             populateComboBoxes();
+            addStudentsShowListData();
             loadStatus();
+            
             //teacher
             loadSubjectDataWithTeacher();
             loadGenders();

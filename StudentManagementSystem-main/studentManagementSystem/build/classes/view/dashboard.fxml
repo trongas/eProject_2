@@ -248,7 +248,7 @@
                                         </AnchorPane>
                                     </children>
                                 </AnchorPane>
-                                <AnchorPane fx:id="addStudents_form" layoutX="99.0" layoutY="143.0" prefHeight="590.0" prefWidth="897.0" visible="false" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <AnchorPane fx:id="addStudents_form" layoutX="99.0" layoutY="143.0" prefHeight="590.0" prefWidth="897.0" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <AnchorPane layoutX="29.0" layoutY="14.0" prefHeight="527.0" prefWidth="870.0" stylesheets="@../assct/dashboardDesign.css">
                                             <styleClass>
@@ -310,7 +310,7 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="addStudents_studentNum" layoutX="109.0" layoutY="276.0" prefHeight="26.0" prefWidth="127.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <Label layoutX="53.0" layoutY="465.0" text="Course:">
+                                                <Label layoutX="56.0" layoutY="458.0" text="Course:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -385,7 +385,7 @@
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
                                                 </Label>
-                                                <Label layoutX="59.0" layoutY="496.0" text="Class:">
+                                                <Label layoutX="63.0" layoutY="494.0" text="Class:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -458,7 +458,7 @@
                                         </AnchorPane>
                                     </children>
                                 </AnchorPane>
-                                <AnchorPane fx:id="studentGrade_form" layoutX="59.0" layoutY="47.0" prefHeight="576.8" prefWidth="961.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <AnchorPane fx:id="studentGrade_form" layoutX="59.0" layoutY="47.0" prefHeight="576.8" prefWidth="961.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
         
                                         <AnchorPane layoutX="18.0" layoutY="11.0" prefHeight="225.0" prefWidth="878.0" stylesheets="@../assct/dashboardDesign.css">
