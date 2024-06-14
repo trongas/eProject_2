@@ -248,7 +248,7 @@
                                         </AnchorPane>
                                     </children>
                                 </AnchorPane>
-                                <AnchorPane fx:id="addStudents_form" layoutX="99.0" layoutY="143.0" prefHeight="590.0" prefWidth="897.0" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <AnchorPane fx:id="addStudents_form" layoutX="99.0" layoutY="143.0" prefHeight="590.0" prefWidth="897.0" visible="false" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <AnchorPane layoutX="29.0" layoutY="14.0" prefHeight="527.0" prefWidth="870.0" stylesheets="@../assct/dashboardDesign.css">
                                             <styleClass>
@@ -522,24 +522,21 @@
                                         </AnchorPane>
                                         <Label alignment="CENTER" layoutX="35.0" layoutY="253.0" />
                                         <Label contentDisplay="CENTER" layoutX="457.0" layoutY="253.0" />
-                                        <TextField fx:id="studentNumField" layoutX="73.0" layoutY="248.0" prefHeight="26.0" prefWidth="142.0" promptText="Student #" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                        <ComboBox fx:id="subjectComboBox" layoutX="272.0" layoutY="249.0" prefHeight="25.0" prefWidth="134.0" promptText="Select Subject" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                        <TextField fx:id="scoreField" layoutX="449.0" layoutY="249.0" prefHeight="26.0" prefWidth="80.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="253.0" text="Student*:" />
-                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="218.0" layoutY="253.0" text="Subject:" />
-                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="410.0" layoutY="253.0" text="Mark:" />
+                                        <TextField fx:id="studentNumField" layoutX="79.0" layoutY="248.0" prefHeight="26.0" prefWidth="142.0" promptText="Student #" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                        <ComboBox fx:id="subjectComboBox" layoutX="323.0" layoutY="248.0" prefHeight="26.0" prefWidth="130.0" promptText="Select Subject" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                        <TextField fx:id="scoreField" layoutX="545.0" layoutY="248.0" prefHeight="26.0" prefWidth="130.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="18.0" layoutY="253.0" text="Student*:" />
+                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="269.0" layoutY="253.0" text="Subject:" />
+                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="501.0" layoutY="253.0" text="Mark:" />
           
-                                              <Button alignment="CENTER" layoutX="802.0" layoutY="244.0" onAction="#clearFieldsStudentGrade" prefHeight="35.0" prefWidth="90.0" stylesheets="@../assct/dashboardDesign.css" text="Clear">
+                                        <Button alignment="CENTER" layoutX="802.0" layoutY="244.0" onAction="#clearFieldsStudentGrade" prefHeight="35.0" prefWidth="90.0" stylesheets="@../assct/dashboardDesign.css" text="Clear">
                                             <styleClass>
                                                 <String fx:value="add-btn" />
                                                 <String fx:value="clear-btn" />
                                             </styleClass>
                                         </Button>
 
-                                                    <Button alignment="CENTER" contentDisplay="CENTER" layoutX="695.0" layoutY="245.0" mnemonicParsing="false" onAction="#addOrUpdateGrade" prefHeight="34.0" prefWidth="100.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Add/Update" />
-                              <Label contentDisplay="CENTER" layoutX="660.0" layoutY="254.0" />
-                              <TextField fx:id="maxScoreField" layoutX="607.0" layoutY="249.0" prefHeight="26.0" prefWidth="74.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                              <Label alignment="CENTER" contentDisplay="CENTER" layoutX="536.0" layoutY="253.0" text="Max Mark:" />
+                                        <Button alignment="CENTER" contentDisplay="CENTER" layoutX="695.0" layoutY="245.0" mnemonicParsing="false" onAction="#addOrUpdateGrade" prefHeight="34.0" prefWidth="100.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Add/Update" />
                                     </children>
                                 </AnchorPane>
 
@@ -557,7 +554,7 @@
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
                                                 </Label>
-                                                <Label layoutX="25.0" layoutY="124.0" text="Age:">
+                                                <Label layoutX="22.0" layoutY="123.0" text="Birth:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
@@ -582,9 +579,9 @@
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
                                                 </Label>
-                                                <ComboBox fx:id="listSroGender" layoutX="337.0" layoutY="23.0" onAction="#loadGenders" prefWidth="130.0" promptText="Choose" />
+                                                <ComboBox fx:id="listSroGender" layoutX="337.0" layoutY="23.0" onAction="#loadGenders" prefHeight="17.0" prefWidth="150.0" promptText="Choose" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <TextField fx:id="txtSroEmail" layoutX="64.0" layoutY="68.0" prefHeight="26.0" prefWidth="150.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <TextField fx:id="txtSroAge" layoutX="64.0" layoutY="120.0" prefHeight="26.0" prefWidth="150.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                                <DatePicker fx:id="txtSroBirthDate" layoutX="64.0" layoutY="127.0" prefHeight="16.0" prefWidth="150.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <Label layoutX="272.0" layoutY="123.0" text="PeopleID:" visible="false">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
@@ -608,8 +605,8 @@
                                                 <TableView fx:id="Sro_tableView" layoutY="52.0" onMouseClicked="#SroSelect" prefHeight="298.0" prefWidth="889.0" stylesheets="@../assct/dashboardDesign.css">
                                                     <columns>
                                                         <TableColumn fx:id="colSroID" minWidth="0.0" prefWidth="0.0" text="ID" />
-                                                        <TableColumn fx:id="colSroName" prefWidth="189.60000896453857" text="SRO" />
-                                                        <TableColumn fx:id="colSroAge" prefWidth="78.40000915527344" text="Age" />
+                                                        <TableColumn fx:id="colSroName" prefWidth="147.19995403289795" text="SRO" />
+                                                        <TableColumn fx:id="colSroBirthDate" prefWidth="122.40000915527344" text="BirthDay" />
                                                         <TableColumn fx:id="colSroGender" prefWidth="96.79998779296875" text="Gender" />
                                                         <TableColumn fx:id="colSroPhone" minWidth="0.0" prefWidth="162.4000244140625" text="Phone" />
                                                         <TableColumn fx:id="colSroEmail" prefWidth="174.40008544921875" text="Email" />
@@ -667,7 +664,7 @@
                                                 <String fx:value="shadow" />
                                             </styleClass>
                                             <children>
-                                                <TableView fx:id="tableViewClasses" layoutX="13.0" layoutY="52.0" onMouseClicked="#handleRowSelecterClass" onSort="#handleRowSelecterClass" prefHeight="298.0" prefWidth="858.0" stylesheets="@../assct/dashboardDesign.css">
+                                                <TableView fx:id="tableViewClasses" layoutX="13.0" layoutY="52.0" onMouseClicked="#handleRowSelecterClass" prefHeight="298.0" prefWidth="858.0" stylesheets="@../assct/dashboardDesign.css">
                                                     <columns>
                                                         <TableColumn fx:id="colClassId" minWidth="0.0" prefWidth="0.0" text="Id" />
                                                         <TableColumn fx:id="colClassName" prefWidth="171.99997329711914" text="Class" />
@@ -700,7 +697,7 @@
                                         </AnchorPane>
                                     </children>
                                 </AnchorPane>
-                                <AnchorPane fx:id="Subject_form" layoutX="10.0" layoutY="10.0" prefHeight="555.0" prefWidth="897.0" visible="false">
+                                <AnchorPane fx:id="Subject_form" layoutX="10.0" layoutY="10.0" prefHeight="555.0" prefWidth="897.0">
                                     <children>
                                         <AnchorPane layoutX="12.0" layoutY="19.0" prefHeight="529.0" prefWidth="272.0" stylesheets="@../assct/dashboardDesign.css">
                                             <styleClass>
@@ -714,16 +711,16 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="txtSubjectName" layoutX="86.0" layoutY="91.0" prefHeight="25.0" prefWidth="155.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <Button fx:id="Subject_addBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="34.0" layoutY="223.0" mnemonicParsing="false" onAction="#addSubject" prefHeight="41.0" prefWidth="85.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
-                                                <Button fx:id="Subject_updateBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="156.0" layoutY="223.0" mnemonicParsing="false" onAction="#updateSubject" prefHeight="41.0" prefWidth="85.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
-                                                <Button fx:id="Subject_clearBtn" alignment="CENTER" layoutX="34.0" layoutY="307.0" mnemonicParsing="false" onAction="#clearSubject" prefHeight="41.0" prefWidth="85.0" styleClass="clear-btn" stylesheets="@../assct/dashboardDesign.css" text="Clear" />
-                                                <Button fx:id="Subject_deleteBtn" alignment="CENTER" layoutX="156.0" layoutY="307.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="41.0" prefWidth="85.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
+                                                <Button fx:id="Subject_addBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="29.0" layoutY="335.0" mnemonicParsing="false" onAction="#addSubject" prefHeight="41.0" prefWidth="85.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
+                                                <Button fx:id="Subject_updateBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="165.0" layoutY="335.0" mnemonicParsing="false" onAction="#updateSubject" prefHeight="41.0" prefWidth="85.0" styleClass="update-btn" stylesheets="@../assct/dashboardDesign.css" text="Update" />
+                                                <Button fx:id="Subject_clearBtn" alignment="CENTER" layoutX="29.0" layoutY="429.0" mnemonicParsing="false" onAction="#clearSubject" prefHeight="41.0" prefWidth="85.0" styleClass="clear-btn" stylesheets="@../assct/dashboardDesign.css" text="Clear" />
+                                                <Button fx:id="Subject_deleteBtn" alignment="CENTER" layoutX="165.0" layoutY="429.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="41.0" prefWidth="85.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
                                                 <Label layoutX="34.0" layoutY="151.0" text="Course:">
                                                     <font>
                                                         <Font name="Tahoma" size="14.0" />
                                                     </font>
                                                 </Label>
-                                                <ComboBox fx:id="comboCourse" layoutX="86.0" layoutY="147.0" prefHeight="26.0" prefWidth="157.0" promptText=" Select Course" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                                <ListView fx:id="listCourses" layoutX="86.0" layoutY="147.0" prefHeight="137.0" prefWidth="158.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <Label layoutX="14.0" layoutY="20.0" text="Subject Management">
                                                     <font>
                                                         <Font name="Arial Bold" size="18.0" />
@@ -761,8 +758,8 @@
                                                 <TableView fx:id="tableViewTeachers" layoutX="3.0" layoutY="41.0" onMouseClicked="#handleRowSelectTeacher" onSort="#handleRowSelectTeacher" prefHeight="476.0" prefWidth="538.0">
                                                     <columns>
                                                         <TableColumn fx:id="colTeacherId" minWidth="0.0" prefWidth="0.0" text="ID" />
-                                                        <TableColumn fx:id="colTeacherName" prefWidth="99.20001220703125" text="Name" />
-                                                        <TableColumn fx:id="colTeacherAge" prefWidth="52.0" text="Age" />
+                                                        <TableColumn fx:id="colTeacherName" prefWidth="66.39996337890625" text="Name" />
+                                                        <TableColumn fx:id="colTeacherBirthDate" prefWidth="86.4000244140625" text="Birth Day" />
                                                         <TableColumn fx:id="colTeacherGender" prefWidth="60.800048828125" text="Gender" />
                                                         <TableColumn fx:id="colTeacherPhoneNumber" prefWidth="82.39996337890625" text="Phone" />
                                                         <TableColumn fx:id="colTeacherEmail" prefWidth="76.0" text="Email" />
@@ -800,7 +797,7 @@
                                                     </font>
                                                 </Label>
                                                 <TextField fx:id="txtTeacherName" layoutX="81.0" layoutY="58.0" prefHeight="26.0" prefWidth="157.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
-                                                <TextField fx:id="txtTeacherAge" layoutX="81.0" layoutY="101.0" prefHeight="25.0" prefWidth="157.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
+                                                <DatePicker fx:id="txtTeacherBirthDate" layoutX="80.0" layoutY="105.0" prefHeight="16.0" prefWidth="159.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <TextField fx:id="txtTeacherPhoneNumber" layoutX="81.0" layoutY="141.0" prefHeight="25.0" prefWidth="157.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <Label layoutX="18.0" layoutY="300.0" text="Subjects:" />
                                                 <Button alignment="CENTER" layoutX="17.0" layoutY="464.0" onAction="#addTeacherButton" prefHeight="34.0" prefWidth="74.0" styleClass="add-btn" stylesheets="@../assct/dashboardDesign.css" text="Add" />
@@ -808,7 +805,7 @@
                                                 <Button alignment="CENTER" layoutX="231.0" layoutY="464.0" onAction="#deleteTeacherButton" prefHeight="34.0" prefWidth="64.0" styleClass="delete-btn" stylesheets="@../assct/dashboardDesign.css" text="Delete" />
                                                 <ComboBox fx:id="comboTeacherGender" layoutX="81.0" layoutY="178.0" onAction="#loadGenders" prefHeight="26.0" prefWidth="157.0" promptText="Choose" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />
                                                 <Label layoutX="36.0" layoutY="145.0" text="Phone:" />
-                                                <Label layoutX="42.0" layoutY="105.0" text="Age:" />
+                                                <Label layoutX="37.0" layoutY="104.0" text="Birth:" />
                                                 <Label layoutX="37.0" layoutY="62.0" text="Name:" />
                                                 <ListView fx:id="listViewSubjects" layoutX="81.0" layoutY="300.0" prefHeight="150.0" prefWidth="200.0" styleClass="label-info" stylesheets="@../assct/dashboardDesign.css" />
                                                 <TextField fx:id="txtTeacherEmail" layoutX="81.0" layoutY="216.0" prefHeight="25.0" prefWidth="157.0" styleClass="textfield" stylesheets="@../assct/dashboardDesign.css" />

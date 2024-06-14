@@ -4,6 +4,8 @@
  */
 package entity;
 
+import java.time.LocalDate;
+
 /**
  *
  * @author Asus
@@ -11,20 +13,28 @@ package entity;
 public class SroData {
     private int sro_id;
     private String sro_name;
-    private int age;
+    private LocalDate birthDate;
     private String gender;
     private String phone_number;
     private String email;
     private String cccd;
 
-    public SroData(int sro_id, String sro_name ,int age, String gender, String phone_number, String email, String cccd) {
+    public SroData(int sro_id, String sro_name, LocalDate birthDate, String gender, String phone_number, String email, String cccd) {
         this.sro_id = sro_id;
         this.sro_name = sro_name;
-        this.age = age;
+        this.birthDate = birthDate;
         this.gender = gender;
         this.phone_number = phone_number;
         this.email = email;
         this.cccd = cccd;
+    }
+
+    public int getSro_id() {
+        return sro_id;
+    }
+
+    public void setSro_id(int sro_id) {
+        this.sro_id = sro_id;
     }
 
     public String getSro_name() {
@@ -35,12 +45,12 @@ public class SroData {
         this.sro_name = sro_name;
     }
 
-    public int getAge() {
-        return age;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getGender() {
@@ -66,21 +76,14 @@ public class SroData {
     public void setEmail(String email) {
         this.email = email;
     }
-      
-        public String getCccd() {
+
+    public String getCccd() {
         return cccd;
     }
 
     public void setCccd(String cccd) {
         this.cccd = cccd;
     }
-   
-    
-    public int getSro_id() {
-        return sro_id;
-    }
 
-    public void setSro_id(int sro_id) {
-        this.sro_id = sro_id;
-    }
+    
 }
