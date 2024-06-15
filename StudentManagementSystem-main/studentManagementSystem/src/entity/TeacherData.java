@@ -1,22 +1,23 @@
 package entity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class TeacherData {
     private int teacherId;
     private String teacherName;
-    private int age;
+    private LocalDate birthDay;
     private String gender;
     private String phoneNumber;
     private String email;
     private String cccd;
     private List<String> subjects; // List of subjects
 
-    public TeacherData(int teacherId, String teacherName, int age, String gender, String phoneNumber, String email, String cccd, List<String> subjects) {
+    public TeacherData(int teacherId, String teacherName, LocalDate birthDay, String gender, String phoneNumber, String email, String cccd, List<String> subjects) {
         this.teacherId = teacherId;
         this.teacherName = teacherName;
-        this.age = age;
+        this.birthDay = birthDay;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -41,13 +42,15 @@ public class TeacherData {
         this.teacherName = teacherName;
     }
 
-    public int getAge() {
-        return age;
+    public LocalDate getBirthDay() {
+        return birthDay;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDay(LocalDate birthDay) {
+        this.birthDay = birthDay;
     }
+
+   
 
     public String getGender() {
         return gender;

@@ -59,6 +59,8 @@ import entity.SubjectData;
 import entity.TeacherData;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -289,8 +291,6 @@ public class DashboardController implements Initializable {
     private ComboBox<String> subjectComboBox;
     @FXML
     private TextField scoreField;
-    @FXML
-    private TextField maxScoreField;
 
     @FXML
     private TextField studentGrade_search;
@@ -325,8 +325,7 @@ public class DashboardController implements Initializable {
     @FXML
     private TextField txtSubjectName;
     @FXML
-    private ComboBox<CourseData> comboCourse;
-
+    private ListView<CourseData> listCourses;
     @FXML
     private TableView<SubjectData> tableSubjects;
     @FXML
@@ -352,8 +351,9 @@ public class DashboardController implements Initializable {
     private Button Sro_UpdateBtn;
     @FXML
     private TextField txtSroID;
+
     @FXML
-    private TextField txtSroAge;
+    private DatePicker txtSroBirthDate;
 
     @FXML
     private TextField txtSroEmail;
@@ -372,8 +372,7 @@ public class DashboardController implements Initializable {
     private TableView<SroData> Sro_tableView;
     @FXML
     private TableColumn<SroData, Integer> colSroID;
-    @FXML
-    private TableColumn<SroData, Integer> colSroAge;
+
     @FXML
     private TableColumn<SroData, String> colSroEmail;
     @FXML
@@ -384,11 +383,13 @@ public class DashboardController implements Initializable {
     private TableColumn<SroData, Integer> colSroPhone;
     @FXML
     private TableColumn<SroData, String> colSroPeopleID;
+    @FXML
+    private TableColumn<SroData, String> colSroBirthDate;
 
     @FXML
     private TextField txtTeacherName;
     @FXML
-    private TextField txtTeacherAge;
+    private DatePicker txtTeacherBirthDate;
     @FXML
     private ComboBox<String> comboTeacherGender;
     @FXML
@@ -406,7 +407,7 @@ public class DashboardController implements Initializable {
     @FXML
     private TableColumn<TeacherData, String> colTeacherName;
     @FXML
-    private TableColumn<TeacherData, Integer> colTeacherAge;
+    private TableColumn<TeacherData, LocalDate> colTeacherBirthDate;
     @FXML
     private TableColumn<TeacherData, String> colTeacherGender;
     @FXML
@@ -714,7 +715,7 @@ public class DashboardController implements Initializable {
 
         try {
             if (!validateStudentFields()) {
-                //showAlert(Alert.AlertType.ERROR, "Error Message", "Please fill all blank fields");
+                showAlert(Alert.AlertType.ERROR, "Error Message", "Please fill all blank fields");
                 return;
             }
 
@@ -1211,6 +1212,7 @@ public class DashboardController implements Initializable {
                     // TO CLEAR THE TEXT FIELDS
                     availableCourseClear();
 
+                    addStudentsShowListData();
                 }
             }
         } catch (Exception e) {
@@ -1419,7 +1421,7 @@ public class DashboardController implements Initializable {
         }
     }
 
-//SUBJECT
+    //SUBJECT
     private ObservableList<SubjectData> subjectListData;
     private ObservableList<CourseData> courseListData;
 
@@ -1437,7 +1439,7 @@ public class DashboardController implements Initializable {
                         result.getString("course_name"));
                 courseListData.add(course);
             }
-            comboCourse.setItems(courseListData);
+            listCourses.setItems(courseListData);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -1445,46 +1447,70 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private void setupCourseComboBox() {
-        comboCourse.setConverter(new StringConverter<CourseData>() {
+    private void setupCourseListView() {
+        listCourses.setCellFactory((ListView<CourseData> listView) -> new ListCell<CourseData>() {
             @Override
-            public String toString(CourseData courseData) {
-                return courseData == null ? null : courseData.getCourse();
-            }
-
-            @Override
-            public CourseData fromString(String s) {
-                return null;
+            protected void updateItem(CourseData course, boolean empty) {
+                super.updateItem(course, empty);
+                if (empty || course == null) {
+                    setText(null);
+                } else {
+                    setText(course.getCourse());
+                }
             }
         });
+    }
+
+    private ObservableList<SubjectData> loadSubjectData() throws SQLException {
+        subjectListData = FXCollections.observableArrayList();
+        String query = "SELECT s.subject_id, s.subject_name, GROUP_CONCAT(c.course_name SEPARATOR ', ') AS course_names "
+                + "FROM subject s "
+                + "JOIN course_subject cs ON s.subject_id = cs.subject_id "
+                + "JOIN course c ON cs.course_id = c.course_id "
+                + "GROUP BY s.subject_id, s.subject_name";
+        try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement(query); ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            Map<Integer, String> subjectMap = new HashMap<>();
+            while (resultSet.next()) {
+                int subjectId = resultSet.getInt("subject_id");
+                String subjectName = resultSet.getString("subject_name");
+                subjectMap.put(subjectId, subjectName);
+                SubjectData subject = new SubjectData(
+                        subjectId,
+                        subjectName,
+                        Arrays.asList(resultSet.getString("course_names").split(", "))
+                );
+                subjectListData.add(subject);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return subjectListData;
     }
 
     @FXML
     public void addSubject() throws SQLException {
         String subjectName = txtSubjectName.getText();
-        CourseData selectedCourse = comboCourse.getValue();
+        ObservableList<CourseData> selectedCourses = listCourses.getSelectionModel().getSelectedItems();
 
-        if (subjectName.isEmpty() || selectedCourse == null) {
+        if (subjectName.isEmpty() || selectedCourses.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields.");
             return;
         }
 
-//        if (isSubjectExists(colSubjectName.getText())) {
-//            showAlert(Alert.AlertType.ERROR, "Error Message", "Student #" + colSubjectName.getText() + " already exists!");
-//            return;
-//        }
         String insertSubjectQuery = "INSERT INTO subject (subject_name) VALUES (?)";
         String linkCourseSubjectQuery = "INSERT INTO course_subject (course_id, subject_id) VALUES (?, ?)";
 
         try {
             connect = Database.connectDb();
+            connect.setAutoCommit(false); // Start transaction
 
             prepare = connect.prepareStatement(insertSubjectQuery, Statement.RETURN_GENERATED_KEYS);
             prepare.setString(1, subjectName);
             prepare.executeUpdate();
             ResultSet generatedKeys = prepare.getGeneratedKeys();
-            generatedKeys = prepare.getGeneratedKeys();
-            int subjectId = 0;
+            int subjectId;
             if (generatedKeys.next()) {
                 subjectId = generatedKeys.getInt(1);
             } else {
@@ -1493,15 +1519,27 @@ public class DashboardController implements Initializable {
             }
 
             prepare = connect.prepareStatement(linkCourseSubjectQuery);
-            prepare.setInt(1, selectedCourse.getId());
-            prepare.setInt(2, subjectId);
-            prepare.executeUpdate();
+            for (CourseData course : selectedCourses) {
+                prepare.setInt(1, course.getId());
+                prepare.setInt(2, subjectId);
+                prepare.addBatch();
+            }
+            prepare.executeBatch();
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject added to course successfully!");
+            connect.commit(); // Commit transaction
+
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject added to courses successfully!");
             subjectShowListData();
             clearSubject();
 
         } catch (SQLException e) {
+            if (connect != null) {
+                try {
+                    connect.rollback(); // Rollback transaction in case of error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
         } finally {
@@ -1513,34 +1551,57 @@ public class DashboardController implements Initializable {
     public void updateSubject() {
         String subjectId = txtSubjectId.getText();
         String subjectName = txtSubjectName.getText();
-        CourseData selectedCourse = comboCourse.getValue();
+        ObservableList<CourseData> selectedCourses = listCourses.getSelectionModel().getSelectedItems();
 
-        if (subjectId.isEmpty() || subjectName.isEmpty() || selectedCourse == null) {
+        if (subjectId.isEmpty() || subjectName.isEmpty() || selectedCourses.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields.");
             return;
         }
 
         String updateSubjectQuery = "UPDATE subject SET subject_name = ? WHERE subject_id = ?";
-        String updateCourseSubjectQuery = "UPDATE course_subject SET course_id = ? WHERE subject_id = ?";
+        String deleteCourseSubjectQuery = "DELETE FROM course_subject WHERE subject_id = ?";
+        String linkCourseSubjectQuery = "INSERT INTO course_subject (course_id, subject_id) VALUES (?, ?)";
 
         try {
             connect = Database.connectDb();
+            connect.setAutoCommit(false); // Start transaction
+
+            // Update subject name
             prepare = connect.prepareStatement(updateSubjectQuery);
             prepare.setString(1, subjectName);
             prepare.setInt(2, Integer.parseInt(subjectId));
             prepare.executeUpdate();
 
-            prepare = connect.prepareStatement(updateCourseSubjectQuery);
-            prepare.setInt(1, selectedCourse.getId());
-            prepare.setInt(2, Integer.parseInt(subjectId));
+            // Remove old course_subject links
+            prepare = connect.prepareStatement(deleteCourseSubjectQuery);
+            prepare.setInt(1, Integer.parseInt(subjectId));
             prepare.executeUpdate();
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject and course updated successfully!");
+            // Insert new course_subject links
+            prepare = connect.prepareStatement(linkCourseSubjectQuery);
+            for (CourseData course : selectedCourses) {
+                prepare.setInt(1, course.getId());
+                prepare.setInt(2, Integer.parseInt(subjectId));
+                prepare.addBatch();
+            }
+            prepare.executeBatch();
+
+            connect.commit(); // Commit transaction
+
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Subject and courses updated successfully!");
             subjectShowListData();
             clearSubject();
 
         } catch (SQLException e) {
+            if (connect != null) {
+                try {
+                    connect.rollback(); // Rollback transaction in case of error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
         } finally {
             closeDatabaseResources();
         }
@@ -1620,51 +1681,6 @@ public class DashboardController implements Initializable {
         }
     }
 
-    @FXML
-    public void handleRowSelectSubject() {
-        SubjectData selectedSubject = tableSubjects.getSelectionModel().getSelectedItem();
-        if (selectedSubject != null) {
-            txtSubjectId.setText(String.valueOf(selectedSubject.getSubjectId()));
-            txtSubjectName.setText(selectedSubject.getSubjectName());
-
-            for (CourseData course : courseListData) {
-                if (course.getCourse().equals(selectedSubject.getCourseName())) {
-                    comboCourse.setValue(course);
-                    break;
-                }
-            }
-        }
-    }
-
-    @FXML
-    private void clearSubject() {
-        txtSubjectId.clear();
-        txtSubjectName.clear();
-        comboCourse.getSelectionModel().clearSelection();
-    }
-
-    private ObservableList<SubjectData> loadSubjectData() throws SQLException {
-        subjectListDataWithTeacher = FXCollections.observableArrayList();
-        String query = "SELECT s.subject_id, s.subject_name, c.course_name "
-                + "FROM subject s "
-                + "JOIN course_subject cs ON s.subject_id = cs.subject_id "
-                + "JOIN course c ON cs.course_id = c.course_id";
-        try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement(query); ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                SubjectData subject = new SubjectData(
-                        resultSet.getInt("subject_id"),
-                        resultSet.getString("subject_name"),
-                        resultSet.getString("course_name")
-                );
-                subjectListDataWithTeacher.add(subject);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        }
-        return subjectListDataWithTeacher;
-    }
-
     public void subjectShowListData() throws SQLException {
         ObservableList<SubjectData> subjectData = loadSubjectData();
         colSubjectId.setCellValueFactory(new PropertyValueFactory<>("subjectId"));
@@ -1673,7 +1689,31 @@ public class DashboardController implements Initializable {
         tableSubjects.setItems(subjectData);
     }
 
-    //Teacher
+    @FXML
+    private void clearSubject() {
+        txtSubjectId.clear();
+        txtSubjectName.clear();
+        listCourses.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    public void handleRowSelectSubject() {
+        SubjectData selectedSubject = tableSubjects.getSelectionModel().getSelectedItem();
+        if (selectedSubject != null) {
+            txtSubjectId.setText(String.valueOf(selectedSubject.getSubjectId()));
+            txtSubjectName.setText(selectedSubject.getSubjectName());
+
+            // Select courses in the ListView
+            listCourses.getSelectionModel().clearSelection();
+            for (CourseData course : courseListData) {
+                if (selectedSubject.getCourseName().contains(course.getCourse())) {
+                    listCourses.getSelectionModel().select(course);
+                }
+            }
+        }
+    }
+
+    //TEACHER
     private ObservableList<TeacherData> teacherListData;
     private ObservableList<SubjectData> subjectListDataWithTeacher;
 
@@ -1699,11 +1739,11 @@ public class DashboardController implements Initializable {
 
     private void loadTeachers() {
         teacherListData = FXCollections.observableArrayList();
-        String query = "SELECT t.teacher_id, t.teacher_name, t.age, t.gender, t.phone_number, t.email, t.cccd, GROUP_CONCAT(ts.subject_id) as subject_ids "
+        String query = "SELECT t.teacher_id, t.teacher_name, t.birth_day, t.gender, t.phone_number, t.email, t.cccd, GROUP_CONCAT(ts.subject_id) as subject_ids "
                 + "FROM teacher t "
                 + "LEFT JOIN teacher_subject ts ON t.teacher_id = ts.teacher_id "
                 + "LEFT JOIN subject s ON ts.subject_id = s.subject_id "
-                + "GROUP BY t.teacher_id, t.teacher_name, t.age, t.gender, t.phone_number, t.email, t.cccd";
+                + "GROUP BY t.teacher_id, t.teacher_name, t.birth_day, t.gender, t.phone_number, t.email, t.cccd";
 
         try {
             connect = Database.connectDb();
@@ -1721,13 +1761,13 @@ public class DashboardController implements Initializable {
                 List<String> subjectsList = new ArrayList<>();
                 if (subjectIds != null && !subjectIds.isEmpty()) {
                     for (String subjectId : subjectIds.split(",")) {
-                        subjectsList.add(subjectMap.get(Integer.parseInt(subjectId)));
+                        subjectsList.add(subjectMap.get(Integer.valueOf(subjectId)));
                     }
                 }
 
                 TeacherData teacher = new TeacherData(result.getInt("teacher_id"),
                         result.getString("teacher_name"),
-                        result.getInt("age"),
+                        result.getDate("birth_day").toLocalDate(),
                         result.getString("gender"),
                         result.getString("phone_number"),
                         result.getString("email"),
@@ -1739,7 +1779,7 @@ public class DashboardController implements Initializable {
 
             colTeacherId.setCellValueFactory(new PropertyValueFactory<>("teacherId"));
             colTeacherName.setCellValueFactory(new PropertyValueFactory<>("teacherName"));
-            colTeacherAge.setCellValueFactory(new PropertyValueFactory<>("age"));
+            colTeacherBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDay"));
             colTeacherGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
             colTeacherPhoneNumber.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
             colTeacherEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
@@ -1755,115 +1795,67 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private List<String> getSubjectNamesByIds(List<Integer> subjectIds) {
-        List<String> subjectNames = new ArrayList<>();
-        for (Integer subjectId : subjectIds) {
-            SubjectData subject = getSubjectById(subjectId);
-            if (subject != null) {
-                subjectNames.add(subject.getSubjectName());
-            }
-        }
-        return subjectNames;
-    }
-
-    private SubjectData getSubjectById(int subjectId) {
-        for (SubjectData subject : subjectListDataWithTeacher) {
-            if (subject.getSubjectId() == subjectId) {
-                return subject;
-            }
-        }
-        return null;
-    }
-
     @FXML
     private void addTeacherButton() throws SQLException {
         String teacherName = txtTeacherName.getText();
-        int age = Integer.parseInt(txtTeacherAge.getText());
+        LocalDate birthDate = txtTeacherBirthDate.getValue();
         String gender = comboTeacherGender.getValue();
         String phoneNumber = txtTeacherPhoneNumber.getText();
         String email = txtTeacherEmail.getText();
         String cccd = txtTeacherCccd.getText();
         List<SubjectData> selectedSubjects = listViewSubjects.getSelectionModel().getSelectedItems();
 
-//        if (isTeacherCccdExists(txtTeacherCccd.getText())) {
-//            showAlert(AlertType.ERROR, "Error Message", "Teacher #" + txtTeacherCccd.getText() + " already exists!");
-//            return;
-//        }
-        
-        if (!validateTeacherFields()) {
-            //showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields and select at least one subject.");
+        if (teacherName.isEmpty() || birthDate == null || gender == null || phoneNumber.isEmpty() || selectedSubjects.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields and select at least one subject.");
             return;
-        } else {
-//            
-//                String checkData = "Select * From teacher Where cccd = '" + txtTeacherCccd.getText() + "'";
-//
-//                statement = connect.createStatement();
-//                result = statement.executeQuery(checkData);
-//
-//                if (result.next()) {
-//                    Alert alert = new Alert(AlertType.ERROR);
-//                    alert.setTitle("Error Message");
-//                    alert.setHeaderText(null);
-//                    alert.setContentText("Teacher was already exist!!!");
-//                    alert.showAndWait();
-//                } else {
-//                   
-//                }
-            String insertTeacherQuery = "INSERT INTO teacher (teacher_name, age, gender, phone_number, email, cccd) VALUES (?, ?, ?, ?, ?, ?)";
-            String linkTeacherSubjectQuery = "INSERT INTO teacher_subject (teacher_id, subject_id) VALUES (?, ?)";
+        }
+        if (!isOver18(birthDate)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Teacher must be over 18 years old.");
+            return;
+        }
+        
+        Date birthDateConverted = Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        String insertTeacherQuery = "INSERT INTO teacher (teacher_name, birth_day, gender, phone_number, email, cccd) VALUES (?, ?, ?, ?, ?, ?)";
+        String linkTeacherSubjectQuery = "INSERT INTO teacher_subject (teacher_id, subject_id) VALUES (?, ?)";
 
-            try {
-                connect = Database.connectDb();
-                prepare = connect.prepareStatement(insertTeacherQuery, Statement.RETURN_GENERATED_KEYS);
-                prepare.setString(1, teacherName);
-                prepare.setInt(2, age);
-                prepare.setString(3, gender);
-                prepare.setString(4, phoneNumber);
-                prepare.setString(5, email);
-                prepare.setString(6, cccd);
+        try {
+            connect = Database.connectDb();
 
-                prepare.executeUpdate();
+            prepare = connect.prepareStatement(insertTeacherQuery, Statement.RETURN_GENERATED_KEYS);
+            prepare.setString(1, teacherName);
+            prepare.setDate(2, new java.sql.Date(birthDateConverted.getTime())); // Use the converted date
+            prepare.setString(3, gender);
+            prepare.setString(4, phoneNumber);
+            prepare.setString(5, email);
+            prepare.setString(6, cccd);
 
-                ResultSet generatedKeys = prepare.getGeneratedKeys();
-                int teacherId = 0;
-                if (generatedKeys.next()) {
-                    teacherId = generatedKeys.getInt(1);
-                }
+            prepare.executeUpdate();
 
-                prepare = connect.prepareStatement(linkTeacherSubjectQuery);
-                for (SubjectData subject : selectedSubjects) {
-                    prepare.setInt(1, teacherId);
-                    prepare.setInt(2, subject.getSubjectId());
-                    prepare.executeUpdate();
-                }
-
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Teacher added successfully!");
-                loadTeachers();
-                clearFields();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
-            } finally {
-                closeDatabaseResources();
+            ResultSet generatedKeys = prepare.getGeneratedKeys();
+            int teacherId = 0;
+            if (generatedKeys.next()) {
+                teacherId = generatedKeys.getInt(1);
             }
 
-            
+            prepare = connect.prepareStatement(linkTeacherSubjectQuery);
+            for (SubjectData subject : selectedSubjects) {
+                prepare.setInt(1, teacherId);
+                prepare.setInt(2, subject.getSubjectId());
+                prepare.executeUpdate();
+            }
+
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Teacher added successfully!");
+            loadTeachers();
+            clearFields();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+        } finally {
+            closeDatabaseResources();
         }
     }
-
-//    private boolean isTeacherCccdExists(String cccd) throws SQLException {
-//        String query = "SELECT * FROM teacher WHERE cccd = '" + txtTeacherCccd.getText() + "'";
-//        try (PreparedStatement ps = connect.prepareStatement(query)) {
-//            ps.setString(1, cccd);
-//            ResultSet rs = ps.executeQuery();
-//            if (rs.next()) {
-//                return rs.getInt(1) > 0;
-//            }
-//        }
-//        return false;
-//    }
-//    
+    
     private boolean validateTeacherFields() {
         String emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         String phonePattern = "^[0-9]{10}$";  // Assuming phone number is 10 digits
@@ -1872,7 +1864,7 @@ public class DashboardController implements Initializable {
         if (txtTeacherName.getText().isEmpty()
                 || txtTeacherEmail.getText().isEmpty()
                 || !txtTeacherEmail.getText().matches(emailPattern)
-                || txtTeacherAge.getText().isEmpty()
+                || txtTeacherBirthDate.getValue() == null
                 || listViewSubjects.getSelectionModel().getSelectedItem() == null
                 || txtTeacherPhoneNumber.getText().isEmpty()
                 || !txtTeacherPhoneNumber.getText().matches(phonePattern)
@@ -1888,8 +1880,8 @@ public class DashboardController implements Initializable {
             } else if (!txtTeacherEmail.getText().matches(emailPattern)) {
                 errorMessage += " - Email is not valid\n";
             }
-            if (txtTeacherAge.getText().isEmpty()) {
-                errorMessage += " - Age is empty\n";
+            if (txtTeacherBirthDate.getValue() == null) {
+                errorMessage += " - BirthDate is empty\n";
             }
             if (listViewSubjects.getSelectionModel().getSelectedItem() == null) {
                 errorMessage += " - Select at least one subject\n";
@@ -1911,6 +1903,7 @@ public class DashboardController implements Initializable {
         return true;
     }
 
+
     @FXML
     private void updateTeacherButton() {
         TeacherData selectedTeacher = tableViewTeachers.getSelectionModel().getSelectedItem();
@@ -1921,19 +1914,23 @@ public class DashboardController implements Initializable {
 
         int teacherId = selectedTeacher.getTeacherId();
         String teacherName = txtTeacherName.getText();
-        int age = Integer.parseInt(txtTeacherAge.getText());
+        LocalDate birthDate = txtTeacherBirthDate.getValue();
         String gender = comboTeacherGender.getValue();
         String phoneNumber = txtTeacherPhoneNumber.getText();
         String email = txtTeacherEmail.getText();
         String cccd = txtTeacherCccd.getText();
         List<SubjectData> selectedSubjects = listViewSubjects.getSelectionModel().getSelectedItems();
-
-        if (teacherName.isEmpty() || txtTeacherAge.getText().isEmpty() || gender == null || phoneNumber.isEmpty() || selectedSubjects.isEmpty()) {
+        if (!isOver18(birthDate)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Teacher must be over 18 years old.");
+            return;
+        }
+        if (teacherName.isEmpty() || birthDate == null || gender == null || phoneNumber.isEmpty() || selectedSubjects.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields and select at least one subject.");
             return;
         }
-
-        String updateTeacherQuery = "UPDATE teacher SET teacher_name = ?, age = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE teacher_id = ?";
+        
+        Date birthDateConverted = Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        String updateTeacherQuery = "UPDATE teacher SET teacher_name = ?, birth_day = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE teacher_id = ?";
         String deleteTeacherSubjectQuery = "DELETE FROM teacher_subject WHERE teacher_id = ?";
         String linkTeacherSubjectQuery = "INSERT INTO teacher_subject (teacher_id, subject_id) VALUES (?, ?)";
 
@@ -1941,7 +1938,7 @@ public class DashboardController implements Initializable {
             connect = Database.connectDb();
             prepare = connect.prepareStatement(updateTeacherQuery);
             prepare.setString(1, teacherName);
-            prepare.setInt(2, age);
+            prepare.setDate(2, new java.sql.Date(birthDateConverted.getTime())); // Use the converted date
             prepare.setString(3, gender);
             prepare.setString(4, phoneNumber);
             prepare.setString(5, email);
@@ -2053,7 +2050,7 @@ public class DashboardController implements Initializable {
                 }
                 // Check if any field contains the search text
                 return teacherData.getTeacherName().toLowerCase().contains(searchText)
-                        || String.valueOf(teacherData.getAge()).contains(searchText)
+                        || teacherData.getBirthDay().toString().contains(searchText)
                         || teacherData.getGender().toLowerCase().contains(searchText)
                         || teacherData.getPhoneNumber().contains(searchText)
                         || teacherData.getEmail().toLowerCase().contains(searchText)
@@ -2070,7 +2067,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void clearFields() {
         txtTeacherName.clear();
-        txtTeacherAge.clear();
+        txtTeacherBirthDate.setValue(null);
         comboTeacherGender.getSelectionModel().clearSelection();
         txtTeacherPhoneNumber.clear();
         txtTeacherEmail.clear();
@@ -2084,7 +2081,7 @@ public class DashboardController implements Initializable {
             TeacherData selectedTeacher = tableViewTeachers.getSelectionModel().getSelectedItem();
             if (selectedTeacher != null) {
                 txtTeacherName.setText(selectedTeacher.getTeacherName());
-                txtTeacherAge.setText(String.valueOf(selectedTeacher.getAge()));
+                txtTeacherBirthDate.setValue(selectedTeacher.getBirthDay());
                 comboTeacherGender.setValue(selectedTeacher.getGender());
                 txtTeacherPhoneNumber.setText(selectedTeacher.getPhoneNumber());
                 txtTeacherEmail.setText(selectedTeacher.getEmail());
@@ -2105,7 +2102,9 @@ public class DashboardController implements Initializable {
             }
         }
     }
-
+    //SRO
+    private ObservableList<SroData> SroListD;
+    
     //SRO
     private boolean validateSroFields() {
         String emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
@@ -2115,7 +2114,7 @@ public class DashboardController implements Initializable {
         if (txtSroName.getText().isEmpty()
                 || txtSroEmail.getText().isEmpty()
                 || !txtSroEmail.getText().matches(emailPattern)
-                || txtSroAge.getText().isEmpty()
+                || txtSroBirthDate.getValue() == null
                 || listSroGender.getSelectionModel().getSelectedItem() == null
                 || txtSroPhone.getText().isEmpty()
                 || !txtSroPhone.getText().matches(phonePattern)
@@ -2131,8 +2130,8 @@ public class DashboardController implements Initializable {
             } else if (!txtSroEmail.getText().matches(emailPattern)) {
                 errorMessage += " - Email is not valid\n";
             }
-            if (txtSroAge.getText().isEmpty()) {
-                errorMessage += " - Age is empty\n";
+            if (txtSroBirthDate.getValue() == null) {
+                errorMessage += " - BirthDate is empty\n";
             }
             if (listSroGender.getSelectionModel().getSelectedItem() == null) {
                 errorMessage += " - Gender is empty\n";
@@ -2153,60 +2152,54 @@ public class DashboardController implements Initializable {
         }
         return true;
     }
-
     @FXML
-    public void SroAdd() throws SQLException {
-        String insertSroData = "INSERT INTO sro " + "(sro_name, age, gender, phone_number, email, cccd)" + "VALUES(?, ?, ?, ?, ?, ?)";
-        connect = Database.connectDb();
+    private void SroAdd() throws SQLException {
+        String sroName = txtSroName.getText();
+        LocalDate birthDate = txtSroBirthDate.getValue();
+        
+        String gender = listSroGender.getValue();
+        String phoneNumber = txtSroPhone.getText();
+        String email = txtSroEmail.getText();
+        String cccd = txtSroPeopleID.getText();
 
-        try {
+//        if (sroName.isEmpty() || birthDate == null || gender == null || phoneNumber.isEmpty() || email.isEmpty() || cccd.isEmpty()) {
+//            showAlert(Alert.AlertType.ERROR, "Error", "Please fill all fields.");
+//            return;
+//        }
 
-            if (!validateSroFields()) {
-                //showAlert(AlertType.ERROR, "Error Message", "Please fill all blank fields");
-            } else {
-
-                String checkData = "SELECT * From sro WHERE cccd = '" + txtSroPeopleID.getText() + "'";
-
-                statement = connect.createStatement();
-                result = statement.executeQuery(checkData);
-
-                if (result.next()) {
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Error Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("SRO was already exist!!!");
-                    alert.showAndWait();
-                } else {
-                    prepare = connect.prepareStatement(insertSroData, Statement.RETURN_GENERATED_KEYS);
-                    String sroAge = txtSroAge.getText();
-                    int age = Integer.parseInt(sroAge);
-                    prepare.setString(1, txtSroName.getText());
-                    prepare.setInt(2, age);
-                    prepare.setString(3, listSroGender.getValue());
-                    prepare.setString(4, txtSroPhone.getText());
-                    prepare.setString(5, txtSroEmail.getText());
-                    prepare.setString(6, txtSroPeopleID.getText());
-                    prepare.executeUpdate();
-
-                    showAlert(AlertType.INFORMATION, "Information Message", "Successfully Added!");
-                    // TO UPDATE THE TABLEVIEW
-                    SroShowListData();
-                    // TO CLEAR THE TEXT FIELDS
-                    SroClear();
-                }
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(AlertType.ERROR, "Error Message", "An error occurred while adding SRO!");
-        } finally {
-            closeDatabaseResources();
+        
+        if (!isOver18(birthDate)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Teacher must be over 18 years old.");
+            return;
         }
+        
+        if(!validateSroFields()) {
+            return;
+        } 
+        
+         Date birthDateConverted = Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        
+        String query = "INSERT INTO sro (sro_name, birth_date, gender, phone_number, email, cccd) VALUES (?, ?, ?, ?, ?, ?)";
 
+        try (Connection connection = Database.connectDb(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, sroName);
+            //preparedStatement.setDate(2, new java.sql.Date(new Date().getTime()));
+            //preparedStatement.setDate(2, java.sql.Date.valueOf(birthDate));
+            preparedStatement.setDate(2, new java.sql.Date(birthDateConverted.getTime()));
+            preparedStatement.setString(3, gender);
+            preparedStatement.setString(4, phoneNumber);
+            preparedStatement.setString(5, email);
+            preparedStatement.setString(6, cccd);
+
+            preparedStatement.executeUpdate();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "SRO added successfully!");
+            SroShowListData();
+            SroClear();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+        }
     }
-
-    private ObservableList<SroData> SroListD;
 
     public ObservableList<SroData> SroListData() {
         SroListD = FXCollections.observableArrayList();
@@ -2216,7 +2209,7 @@ public class DashboardController implements Initializable {
                 SroData sroD = new SroData(
                         rs.getInt("sro_id"),
                         rs.getString("sro_name"),
-                        rs.getInt("age"),
+                        rs.getDate("birth_date").toLocalDate(),
                         rs.getString("gender"),
                         rs.getString("phone_number"),
                         rs.getString("email"),
@@ -2234,9 +2227,9 @@ public class DashboardController implements Initializable {
     public void SroShowListData() {
         SroListD = SroListData();
 
-        colSroID.setCellValueFactory(new PropertyValueFactory<>("sro_id"));
+        colSroID.setCellValueFactory(new PropertyValueFactory<>("sroId"));
         colSroName.setCellValueFactory(new PropertyValueFactory<>("sro_name"));
-        colSroAge.setCellValueFactory(new PropertyValueFactory<>("age"));
+        colSroBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
         colSroGender.setCellValueFactory(new PropertyValueFactory<>("gender"));
         colSroPhone.setCellValueFactory(new PropertyValueFactory<>("phone_number"));
         colSroEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
@@ -2247,71 +2240,64 @@ public class DashboardController implements Initializable {
 
     @FXML
     public void SroClear() {
-        txtSroName.setText("");
-        txtSroAge.setText("");
-        txtSroEmail.setText("");
-        txtSroPhone.setText("");
+        txtSroID.clear();
+        txtSroName.clear();
+        txtSroBirthDate.setValue(null);
+        txtSroEmail.clear();
+        txtSroPhone.clear();
         listSroGender.getSelectionModel().clearSelection();
-        txtSroPeopleID.setText("");
+        txtSroPeopleID.clear();
     }
 
     @FXML
     public void SroUpdate() throws SQLException {
+        LocalDate birthDate = txtSroBirthDate.getValue();
+        String sroId = txtSroID.getText();
+        if (sroId == null || sroId.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please provide the SRO ID.");
+            return;
+        }
 
         connect = Database.connectDb();
         try {
-            Alert alert;
-            if (!validateSroFields()) {
-//                alert = new Alert(AlertType.ERROR);
-//                alert.setTitle("Error Message");
-//                alert.setHeaderText(null);
-//                alert.setContentText("Please fill all blank fields");
-//                alert.showAndWait();
+            if (txtSroName.getText().isEmpty()
+                    || txtSroBirthDate.getValue() == null
+                    || txtSroEmail.getText().isEmpty()
+                    || txtSroPhone.getText().isEmpty()
+                    || listSroGender.getSelectionModel().isEmpty()
+                    || txtSroPeopleID.getText().isEmpty()) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Please fill all blank fields");
                 return;
-            } else {
-                alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure want to update?");
-                Optional<ButtonType> option = alert.showAndWait();
+            }
+            
+            Date birthDateConverted = Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-                if (option.get().equals(ButtonType.OK)) {
-                    String updateSroData = "UPDATE sro SET sro_name = ?, age = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE sro_id = '" + txtSroID.getText() + "'";
-                    String sroAge = txtSroAge.getText();
-                    int age = Integer.parseInt(sroAge);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to update?");
+            Optional<ButtonType> option = alert.showAndWait();
 
-                    prepare = connect.prepareStatement(updateSroData);
-                    prepare.setString(1, txtSroName.getText());
-                    prepare.setInt(2, age);
-                    prepare.setString(3, (String) listSroGender.getSelectionModel().getSelectedItem());
-                    prepare.setString(4, txtSroPhone.getText());
-                    prepare.setString(5, txtSroEmail.getText());
-                    prepare.setString(6, txtSroPeopleID.getText());
+            if (option.isPresent() && option.get() == ButtonType.OK) {
+                String updateSroData = "UPDATE sro SET sro_name = ?, birth_date = ?, gender = ?, phone_number = ?, email = ?, cccd = ? WHERE sro_id = ?";
+                prepare = connect.prepareStatement(updateSroData);
+                prepare.setString(1, txtSroName.getText());
+                prepare.setDate(2, new java.sql.Date(birthDateConverted.getTime())); // Use the converted date
+                prepare.setString(3, listSroGender.getValue());
+                prepare.setString(4, txtSroPhone.getText());
+                prepare.setString(5, txtSroEmail.getText());
+                prepare.setString(6, txtSroPeopleID.getText());
+                prepare.setInt(7, Integer.parseInt(sroId));
 
-                    prepare.executeUpdate();
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Updated!");
-                    alert.showAndWait();
-
-                    SroShowListData();
-                    SroClear();
-
-                }
+                prepare.executeUpdate();
+                showAlert(Alert.AlertType.INFORMATION, "Information Message", "Successfully Updated!");
+                SroShowListData();
+                SroClear();
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (result != null) {
-                result.close();
-            }
-            if (prepare != null) {
-                prepare.close();
-            }
-            if (connect != null) {
-                connect.close();
-            }
+            closeDatabaseResources();
         }
     }
 
@@ -2326,7 +2312,7 @@ public class DashboardController implements Initializable {
         Alert alert;
         if (txtSroName.getText().isEmpty()
                 || txtSroEmail.getText().isEmpty()
-                || txtSroAge.getText().isEmpty()
+                || txtSroBirthDate.getValue() == null
                 || listSroGender.getSelectionModel().getSelectedItem() == null
                 || txtSroPhone.getText().isEmpty()
                 || txtSroPeopleID.getText().isEmpty()) {
@@ -2396,7 +2382,7 @@ public class DashboardController implements Initializable {
             txtSroID.setText(String.valueOf(sroD.getSro_id()));
             txtSroName.setText(String.valueOf(sroD.getSro_name()));
             txtSroEmail.setText(String.valueOf(sroD.getEmail()));
-            txtSroAge.setText(String.valueOf(sroD.getAge()));
+            txtSroBirthDate.setValue(sroD.getBirthDate());
             txtSroPhone.setText(String.valueOf(sroD.getPhone_number()));
             txtSroPeopleID.setText(String.valueOf(sroD.getCccd()));
             listSroGender.setValue(sroD.getGender());
@@ -2408,8 +2394,9 @@ public class DashboardController implements Initializable {
         SroData sroSubject = Sro_tableView.getSelectionModel().getSelectedItem();
         if (sroSubject != null) {
             txtSroName.setText(String.valueOf(sroSubject.getSro_name()));
+            txtSroBirthDate.setValue(sroSubject.getBirthDate());
+            listSroGender.setValue(sroSubject.getGender());
             txtSroEmail.setText(String.valueOf(sroSubject.getEmail()));
-            txtSroAge.setText(String.valueOf(sroSubject.getAge()));
             txtSroPhone.setText(String.valueOf(sroSubject.getPhone_number()));
             txtSroPeopleID.setText(String.valueOf(sroSubject.getCccd()));
         }
@@ -2425,13 +2412,11 @@ public class DashboardController implements Initializable {
                 }
 
                 String searchKey = newValue.toLowerCase();
-                if (predicateSroData.getSro_name().contains(searchKey)) {
+                if (predicateSroData.getSro_name().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateSroData.getEmail().contains(searchKey)) {
+                } else if (predicateSroData.getEmail().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateSroData.getGender().contains(searchKey)) {
-                    return true;
-                } else if (predicateSroData.getGender().contains(searchKey)) {
+                } else if (predicateSroData.getGender().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateSroData.getPhone_number().contains(searchKey)) {
                     return true;
@@ -2442,7 +2427,6 @@ public class DashboardController implements Initializable {
         });
 
         SortedList<SroData> sortList = new SortedList<>(filter);
-
         sortList.comparatorProperty().bind(Sro_tableView.comparatorProperty());
         Sro_tableView.setItems(sortList);
     }
@@ -2600,22 +2584,64 @@ public class DashboardController implements Initializable {
         Optional<ButtonType> option = confirmationAlert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {
+            String deleteStudentsQuery = "DELETE s FROM student s JOIN class c ON s.class_id = c.class_id WHERE c.course_id = ?";
+            String updateSroQuery = "UPDATE class  WHERE class_id = ?";
+            String updateCourseQuery = "UPDATE course  WHERE class_id = ?";
+            String updateTeacherQuery = "UPDATE class  WHERE class_id = ?";
             String deleteClassQuery = "DELETE FROM class WHERE class_id = ?";
 
             try {
                 connect = Database.connectDb();
+                connect.setAutoCommit(false); // Start transaction
+
+                // Update students to set class_id to NULL or move them to a placeholder class
+                prepare = connect.prepareStatement(deleteStudentsQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Update SRO to set sro_id to NULL
+                prepare = connect.prepareStatement(updateSroQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                prepare = connect.prepareStatement(updateCourseQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Update Teacher to set teacher_id to NULL
+                prepare = connect.prepareStatement(updateTeacherQuery);
+                prepare.setInt(1, classId);
+                prepare.executeUpdate();
+
+                // Delete the class
                 prepare = connect.prepareStatement(deleteClassQuery);
                 prepare.setInt(1, classId);
                 prepare.executeUpdate();
+
+                connect.commit(); // Commit transaction
 
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Class deleted successfully!");
                 loadClasses();
                 clearFields();
             } catch (SQLException e) {
+                if (connect != null) {
+                    try {
+                        connect.rollback(); // Rollback transaction in case of error
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
             } finally {
-                closeDatabaseResources();
+                if (connect != null) {
+                    try {
+                        connect.setAutoCommit(true);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    closeDatabaseResources();
+                }
             }
         }
     }
@@ -2817,7 +2843,6 @@ public class DashboardController implements Initializable {
         if (selectedGrade != null) {
             subjectComboBox.setValue(selectedGrade.getSubject());
             scoreField.setText(String.valueOf(selectedGrade.getScore()));
-            maxScoreField.setText(String.valueOf(selectedGrade.getScore()));
         }
 
     }
@@ -2827,8 +2852,8 @@ public class DashboardController implements Initializable {
         studentGrades.clear();
         double totalWeightedScore = 0.0;
         double totalMaxRate = 0.0;
-
-        String query = "SELECT sg.grade_id, CONCAT(s.firstName, ' ', s.lastName) as student_name, su.subject_name, sg.score, sg.maxScore, sg.status "
+        double maxScore = 20.0;
+        String query = "SELECT sg.grade_id, CONCAT(s.firstName, ' ', s.lastName) as student_name, su.subject_name, sg.score, sg.status "
                 + "FROM student_grades sg "
                 + "JOIN student s ON sg.student_id = s.student_id "
                 + "JOIN course_subject cs ON sg.course_subject_id = cs.course_subject_id "
@@ -2841,7 +2866,7 @@ public class DashboardController implements Initializable {
 
             while (resultSet.next()) {
                 double score = resultSet.getDouble("score");
-                double maxScore = resultSet.getDouble("maxScore");
+
                 double rate = calculateRate(score, maxScore);
                 String fommatedRate = String.format(" %.2f", rate);
                 double rateValue = Double.parseDouble(fommatedRate);
@@ -2902,49 +2927,44 @@ public class DashboardController implements Initializable {
     @FXML
     private void addOrUpdateGrade() {
         String studentNum = studentNumField.getText();
-        String selectedSubject = subjectComboBox.getSelectionModel().getSelectedItem();
-        String scoreStr = scoreField.getText();
-        String maxScoreStr = maxScoreField.getText();
-        if (studentNum == null || studentNum.isEmpty() || selectedSubject == null || scoreStr == null || scoreStr.isEmpty() || maxScoreStr.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Warning", "Please fill in all fields!");
+        String subjectName = subjectComboBox.getValue();
+        String scoreText = scoreField.getText();
+
+        if (studentNum.isEmpty() || subjectName == null || scoreText.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Warning", "Please fill all fields");
             return;
         }
 
         try {
-            double score = Double.parseDouble(scoreStr);
-            double maxScore = Double.parseDouble(maxScoreStr);
+            double score = Double.parseDouble(scoreText);
             String status = calculateStatus(score);
 
+            if (score > 20) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "Score cannot be greater than the maximum score (" + 20 + ").");
+                return;
+            }
             int studentId = getStudentIdByStudentNum(studentNum);
-            if (studentId == -1) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Student not found!");
-                return;
-            }
-
-            int courseSubjectId = getCourseSubjectIdBySubjectNameAndStudentId(selectedSubject, studentId);
-            if (courseSubjectId == -1) {
-                courseSubjectId = insertCourseSubjectForStudent(selectedSubject, studentId);
-            }
+            int courseSubjectId = getCourseSubjectIdBySubjectNameAndStudentId(subjectName, studentId);
 
             if (courseSubjectId == -1) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to get or create course subject!");
-                return;
+                courseSubjectId = insertCourseSubjectForStudent(subjectName, studentId);
             }
 
             if (isStudentGradeExists(studentId, courseSubjectId)) {
-                updateStudentGrade(studentId, courseSubjectId, score, maxScore, status);
+                updateStudentGrade(studentId, courseSubjectId, score, status);
             } else {
-                insertStudentGrade(studentId, courseSubjectId, score, maxScore, status);
+                insertStudentGrade(studentId, courseSubjectId, score, status);
             }
-
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Grade added/updated successfully!");
             loadStudentGrades(studentId);
 
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Grade added/updated successfully");
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.WARNING, "Warning", "Invalid score format. Please enter a valid number.");
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + e.getMessage());
+        } finally {
+            closeDatabaseResources();
         }
     }
 
@@ -3048,15 +3068,25 @@ public class DashboardController implements Initializable {
         return false;
     }
 
-    private void updateStudentGrade(int studentId, int courseSubjectId, double score, double maxScore, String status) throws SQLException {
-        String query = "UPDATE student_grades SET score = ?, maxScore = ?, status = ? WHERE student_id = ? AND course_subject_id = ?";
+    // Helper method to insert a student grade into the database
+    private void insertStudentGrade(int studentId, int courseSubjectId, double score, String status) throws SQLException {
+        String query = "INSERT INTO student_grades (student_id, course_subject_id, score, status) VALUES (?, ?, ?, ?)";
         try (Connection connection = Database.connectDb(); PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, studentId);
+            statement.setInt(2, courseSubjectId);
+            statement.setDouble(3, score);
+            statement.setString(4, status);
+            statement.executeUpdate();
+        }
+    }
 
+    private void updateStudentGrade(int studentId, int courseSubjectId, double score, String status) throws SQLException {
+        String query = "UPDATE student_grades SET score = ?, status = ? WHERE student_id = ? AND course_subject_id = ?";
+        try (Connection connection = Database.connectDb(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setDouble(1, score);
-            statement.setDouble(2, maxScore);
-            statement.setString(3, status);
-            statement.setInt(4, studentId);
-            statement.setInt(5, courseSubjectId);
+            statement.setString(2, status);
+            statement.setInt(3, studentId);
+            statement.setInt(4, courseSubjectId);
             statement.executeUpdate();
         }
     }
@@ -3067,14 +3097,13 @@ public class DashboardController implements Initializable {
 
         // Prepare initial score and status
         double initialScore = 0.0;
-        double initialMaxScore = 0.0;
         String status = calculateStatus(initialScore);
 
         // Insert initial grades for each subject
         for (String subject : subjects) {
             int courseSubjectId = getCourseSubjectIdBySubjectNameAndCourseId(subject, courseId);
             if (courseSubjectId != -1) {
-                insertStudentGrade(studentId, courseSubjectId, initialScore, initialMaxScore, status);
+                insertStudentGrade(studentId, courseSubjectId, initialScore, status);
             } else {
                 System.out.println("No course subject found for subject: " + subject);
             }
@@ -3148,7 +3177,7 @@ public class DashboardController implements Initializable {
     // Helper method to retrieve the course_subject_id for a given subject name and courseId
 
     private int getCourseSubjectIdBySubjectNameAndCourseId(String subjectName, int courseId) throws SQLException {
-        String query = "SELECT course_subject_id FROM course_subject WHERE subject_id = (SELECT subject_id FROM subject WHERE subject_name = ? LIMIT 1) AND course_id = ? LIMIT 1";
+        String query = "SELECT course_subject_id FROM course_subject WHERE subject_id = (SELECT subject_id FROM subject WHERE subject_name = ?) AND course_id = ?";
         try (PreparedStatement ps = connect.prepareStatement(query)) {
             ps.setString(1, subjectName);
             ps.setInt(2, courseId);
@@ -3160,27 +3189,13 @@ public class DashboardController implements Initializable {
         return -1;
     }
 
-    // Helper method to insert a student grade into the database
-    private void insertStudentGrade(int studentId, int courseSubjectId, double score, double maxScore, String status) throws SQLException {
-        String query = "INSERT INTO student_grades (student_id, course_subject_id, score, maxScore, status) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = Database.connectDb(); PreparedStatement statement = connection.prepareStatement(query)) {
-
-            statement.setInt(1, studentId);
-            statement.setInt(2, courseSubjectId);
-            statement.setDouble(3, score);
-            statement.setDouble(4, maxScore);
-            statement.setString(5, status);
-            statement.executeUpdate();
-        }
-    }
-
 // Helper method to calculate status based on score
     private String calculateStatus(double score) {
-        if (score >= 85) {
+        if (score >= 18) {
             return "DISTINCTION";
-        } else if (score >= 75) {
+        } else if (score >= 15) {
             return "CREDIT";
-        } else if (score >= 50) {
+        } else if (score >= 8) {
             return "PASS";
         } else {
             return "RE-EXAM";
@@ -3198,9 +3213,21 @@ public class DashboardController implements Initializable {
             CSVExporter.exportToCSV(studentGrades, file);
         }
     }
+    
+    
+    //Check age
+    private boolean isOver18(LocalDate birthDate) {
+        if(birthDate == null) {
+            showAlert(AlertType.ERROR, "Error Message", "BirthDate is empty");
+            return false;
+        }   
+        LocalDate today = LocalDate.now();
+        Period age = Period.between(birthDate, today);
+        return age.getYears() >= 18;
+    }
 
 //Load  Gender
-    ObservableList<String> genderOptions = FXCollections.observableArrayList("MALE", "FEMALE", "OTHER");
+    ObservableList<String> genderOptions = FXCollections.observableArrayList("Male", "Female", "Other");
 
     @FXML
     private void loadGenders() {
@@ -3345,10 +3372,8 @@ public class DashboardController implements Initializable {
             Sro_btn.setStyle("-fx-background-color:transparent");
             Class_btn.setStyle("-fx-background-color:transparent");
             Subject_btn.setStyle("-fx-background-color:transparent");
-
             addStudentsShowListData();
             addStudentsSearch();
-
         } else if (event.getSource() == availableCourse_btn) {
             home_form.setVisible(false);
             addStudents_form.setVisible(false);
@@ -3392,7 +3417,7 @@ public class DashboardController implements Initializable {
             setTableGradeColumn();
             loadStudents();
             loadSubjects();
-
+            StudentGradeSearch();
         } else if (event.getSource() == teacher_btn) {
             home_form.setVisible(false);
             addStudents_form.setVisible(false);
@@ -3480,7 +3505,6 @@ public class DashboardController implements Initializable {
             Class_btn.setStyle("-fx-background-color:transparent");
             Subject_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d)");
 
-            setupCourseComboBox();
             subjectShowListData();
             loadCourseData();
         }
@@ -3512,15 +3536,24 @@ public class DashboardController implements Initializable {
 
             // TO SHOW IMMIDIATELY WHEN WE PROCEED TO DASHBOARD APPLICATION FORM
             //student
-            addStudentsShowListData();
             populateComboBoxes();
+            addStudentsShowListData();
             loadStatus();
+
             //teacher
             loadSubjectDataWithTeacher();
             loadGenders();
             loadTeachers();
             teacherSearch();
             listViewSubjects.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+            //SUbject
+            subjectShowListData();
+            ObservableList<SubjectData> loadSubjectData = loadSubjectData();
+            loadCourseData();
+            setupCourseListView();
+
+            listCourses.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
             //SRO
             SroShowListData();
